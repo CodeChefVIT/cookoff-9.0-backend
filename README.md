@@ -1,71 +1,57 @@
-<p align="center"><a href="https://www.codechefvit.com" target="_blank"><img src="https://i.ibb.co/4J9LXxS/cclogo.png" width=160 title="CodeChef-VIT" alt="Codechef-VIT"></a>
-</p>
+# Project cookoff-backend
 
-<h2 align="center"> Project Title </h2>
-<br/>
+One Paragraph of project description goes here
 
-> Include project description here.
+## Getting Started
 
----
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
 
-[![DOCS](https://img.shields.io/badge/Documentation-see%20docs-green?style=flat-square&logo=appveyor)](INSERT_LINK_FOR_DOCS_HERE) 
-  [![UI ](https://img.shields.io/badge/User%20Interface-Link%20to%20UI-orange?style=flat-square&logo=appveyor)](INSERT_UI_LINK_HERE)
-[![GitHub Super-Linter](https://github.com/<OWNER>/<REPOSITORY>/workflows/Lint%20Code%20Base/badge.svg)](https://github.com/marketplace/actions/super-linter)
-## Features
-- Insert list of features here
+## MakeFile
 
-## Screenshots
-<p align="center">
-<img src="https://i.ibb.co/VppxmWZ/cet.png" alt="Common-Entry-Test" width="400px"/>
-</p>
+run all make commands with clean tests
 
-
-## Dependencies
- - < dependency >
- - < dependency >
-## Instructions
-
-#### Directions to Install
-```sh
-$ git clone https://github.com/CodeChefVIT/<Project>
-$ cd <Project>
-$ npm install
+```bash
+make all build
 ```
-#### Directions to Run
-```sh
-$ npm serve
+
+build the application
+
+```bash
+make build
 ```
-## Contributors
-<table>
-	<tr align="center" style="font-weight:bold">
-		<td>
-		John Doe
-		<p align="center">
-			<img src = "https://i.ibb.co/4J9LXxS/cclogo.png" width="150" height="150" alt="Your Name Here (Insert Your Image Link In Src">
-		</p>
-			<p align="center">
-				<a href = "https://github.com/<GitHub-username>">
-					<img src = "http://www.iconninja.com/files/241/825/211/round-collaboration-social-github-code-circle-network-icon.svg" width="36" height = "36" alt="GitHub"/>
-				</a>
-			</p>
-		</td>
-				<td>
-		John Doe
-		<p align="center">
-			<img src = "https://i.ibb.co/4J9LXxS/cclogo.png" width="150" height="150" alt="Your Name Here (Insert Your Image Link In Src">
-		</p>
-			<p align="center">
-				<a href = "https://github.com/<GitHub-username>">
-					<img src = "http://www.iconninja.com/files/241/825/211/round-collaboration-social-github-code-circle-network-icon.svg" width="36" height = "36" alt="GitHub"/>
-				</a>
-			</p>
-		</td>
-	</tr>
-</table>
 
-## License
-[![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
+run the application
 
-<p align="center">
-	Made with :heart: by <a href="https://www.codechefvit.com" target="_blank">CodeChef-VIT</a>
-</p>
+```bash
+make run
+```
+
+Create DB container
+
+```bash
+make docker-run
+```
+
+Shutdown DB container
+
+```bash
+make docker-down
+```
+
+live reload the application
+
+```bash
+make watch
+```
+
+run the test suite
+
+```bash
+make test
+```
+
+clean up binary from the last build
+
+```bash
+make clean
+```

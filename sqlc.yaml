@@ -1,0 +1,20 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    queries: "database/queries"
+    schema: "database/schema.sql"
+    gen:
+      go:
+        out: "internal/db"
+        sql_package: "pgx/v5"
+        package: "db"
+        overrides:
+          - db_type: "uuid"
+            go_type:
+              import: "github.com/segmentio/ksuid"
+              type: "KSUID"
+            nullable: true
+          - db_type: "uuid"
+            go_type:
+              import: "github.com/segmentio/ksuid"
+              type: "KSUID"
