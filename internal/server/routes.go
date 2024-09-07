@@ -15,8 +15,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 	// Health Check
 	r.Get("/ping", controllers.HealthCheck)
 
-	// POST route for code submission
-	r.Post("/api/submission", controllers.SubmitCode) // Corrected reference to the exported SubmitCode function
+	// POST route for code submission using chi's Post method
+	r.Post("/submission", controllers.SubmitCode) // Register the route using chi's Post
 
 	return r
 }

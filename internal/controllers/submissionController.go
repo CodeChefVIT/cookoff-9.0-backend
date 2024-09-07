@@ -2,13 +2,29 @@ package controllers
 
 import (
 	"bytes"
+	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
-	"os"
 	"time"
 )
+
+const (
+	baseURL             = "https://trauma.codechefvit.com"
+	submissionsEndpoint = "/submissions"
+	timeout             = 30 * time.Second
+	pollInterval        = 2 * time.Second
+)
+
+var languageMap = map[string]string{
+	"Python (3.8.1)": "71", // Python 3
+	"cpp":            "54", // C++
+	"javascript":     "63", // JavaScript (Node.js)
+	"java":           "62", // Java
+	// Add more languages as needed
+}
 
 type CodeSubmission struct {
 	Code     string `json:"code"`
@@ -16,8 +32,9 @@ type CodeSubmission struct {
 }
 
 type Judge0Request struct {
-	SourceCode string `json:"source_code"`
-	LanguageID string `json:"language_id"`
+	SourceCode   string `json:"source_code"`
+	LanguageID   string `json:"language_id"`
+	Base64Encode bool   `json:"base64_encoded"` // Indicates if the code is base64-encoded
 }
 
 type Judge0Response struct {
@@ -32,92 +49,57 @@ type Judge0Result struct {
 	Stderr string `json:"stderr"`
 }
 
-var languageMap = map[string]string{
-	"python3":         "71", // Python 3
-	"cpp":             "54", // C++
-	"javascript":      "63", // JavaScript (Node.js)
-	"java":            "62", // Java
-	"C++ (GCC 9.2.0)": "54",
-	// Add more languages as needed
-}
+func codeResponse(token string, w http.ResponseWriter, client *http.Client) {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
 
-func codeResponse(resp *http.Response, w http.ResponseWriter, client *http.Client) {
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		http.Error(w, "Failed to read response", http.StatusInternalServerError)
-		return
-	}
-
-	var judge0Resp Judge0Response
-	err = json.Unmarshal(body, &judge0Resp)
-	if err != nil {
-		http.Error(w, "Failed to decode response", http.StatusInternalServerError)
-		return
-	}
-
-	// Poll for result
 	for {
-		time.Sleep(2 * time.Second)
-
-		resultReq, err := http.NewRequest("GET", fmt.Sprintf("https://judge0-ce.p.rapidapi.com/submissions/%s", judge0Resp.Token), nil)
-		if err != nil {
-			http.Error(w, "Failed to create result request", http.StatusInternalServerError)
+		select {
+		case <-ctx.Done():
+			http.Error(w, "Request timed out", http.StatusRequestTimeout)
 			return
-		}
-		resultReq.Header.Set("X-RapidAPI-Key", os.Getenv("RAPIDAPI_KEY"))
-		resultReq.Header.Set("X-RapidAPI-Host", os.Getenv("API_HOST"))
+		default:
+			time.Sleep(pollInterval)
 
-		resultResp, err := client.Do(resultReq)
-		if err != nil {
-			http.Error(w, "Failed to fetch result", http.StatusInternalServerError)
-			return
-		}
-		defer resultResp.Body.Close()
+			resultURL := fmt.Sprintf("%s%s/%s?base64_encoded=false,fields=stdout,stderr", baseURL, submissionsEndpoint, token)
+			resultResp, err := doRequest("GET", resultURL, nil, client)
+			if err != nil {
+				http.Error(w, "Failed to fetch result", http.StatusInternalServerError)
+				return
+			}
 
-		resultBody, err := io.ReadAll(resultResp.Body)
-		if err != nil {
-			http.Error(w, "Failed to read result response", http.StatusInternalServerError)
-			return
-		}
+			var judge0Result Judge0Result
+			if err := json.Unmarshal(resultResp, &judge0Result); err != nil {
+				http.Error(w, "Failed to decode result", http.StatusInternalServerError)
+				return
+			}
 
-		var judge0Result Judge0Result
-		err = json.Unmarshal(resultBody, &judge0Result)
-		if err != nil {
-			http.Error(w, "Failed to decode result", http.StatusInternalServerError)
-			return
-		}
-
-		// Check if result is ready
-		if judge0Result.Status.Description == "Accepted" || judge0Result.Status.Description == "Compilation Error" {
-			json.NewEncoder(w).Encode(map[string]interface{}{
-				"status": judge0Result.Status.Description,
-				"output": judge0Result.Stdout,
-				"error":  judge0Result.Stderr,
-			})
-			return
+			if isFinalStatus(judge0Result.Status.Description) {
+				respondWithResult(w, judge0Result)
+				return
+			}
 		}
 	}
 }
 
 func SubmitCode(w http.ResponseWriter, r *http.Request) {
 	var submission CodeSubmission
-	err := json.NewDecoder(r.Body).Decode(&submission)
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&submission); err != nil {
 		http.Error(w, "Invalid input", http.StatusBadRequest)
 		return
 	}
 
-	// Map the language name to its ID
 	languageID, exists := languageMap[submission.Language]
 	if !exists {
 		http.Error(w, "Unsupported language", http.StatusBadRequest)
 		return
 	}
 
-	// Prepare the Judge0 API request
+	encodedCode := base64.StdEncoding.EncodeToString([]byte(submission.Code))
 	judge0Req := Judge0Request{
-		SourceCode: submission.Code,
-		LanguageID: languageID,
+		SourceCode:   encodedCode,
+		LanguageID:   languageID,
+		Base64Encode: true,
 	}
 
 	jsonData, err := json.Marshal(judge0Req)
@@ -126,23 +108,57 @@ func SubmitCode(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	req, err := http.NewRequest("POST", "https://judge0-ce.p.rapidapi.com/submissions", bytes.NewBuffer(jsonData))
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s%s?base64_encoded=true", baseURL, submissionsEndpoint), bytes.NewBuffer(jsonData))
 	if err != nil {
 		http.Error(w, "Failed to create request", http.StatusInternalServerError)
 		return
 	}
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("X-RapidAPI-Key", os.Getenv("RAPIDAPI_KEY"))
-	req.Header.Set("X-RapidAPI-Host", os.Getenv("API_HOST"))
 
 	client := &http.Client{}
-	resp, err := client.Do(req)
+	body, err := doRequest("POST", req.URL.String(), bytes.NewBuffer(jsonData), client)
 	if err != nil {
 		http.Error(w, "Failed to send request", http.StatusInternalServerError)
 		return
 	}
+
+	var judge0Resp Judge0Response
+	if err := json.Unmarshal(body, &judge0Resp); err != nil {
+		http.Error(w, "Failed to decode response", http.StatusInternalServerError)
+		return
+	}
+
+	codeResponse(judge0Resp.Token, w, client)
+}
+
+func doRequest(method, url string, body io.Reader, client *http.Client) ([]byte, error) {
+	req, err := http.NewRequest(method, url, body)
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
 	defer resp.Body.Close()
 
-	// Call the codeResponse function with the response and client
-	codeResponse(resp, w, client)
+	return io.ReadAll(resp.Body)
+}
+
+func isFinalStatus(description string) bool {
+	switch description {
+	case "Accepted", "Compilation Error", "Runtime Error (NZEC)":
+		return true
+	}
+	return false
+}
+
+func respondWithResult(w http.ResponseWriter, result Judge0Result) {
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"status": result.Status.Description,
+		"output": result.Stdout,
+		"error":  result.Stderr,
+	})
 }
