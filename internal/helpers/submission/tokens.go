@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	logger "github.com/CodeChefVIT/cookoff-backend/internal/helpers/logging"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -16,9 +17,9 @@ type TokenManager struct {
 var Tokens *TokenManager
 
 func Init() {
-	host := os.Getenv("REDIS_HOST")
-	port := os.Getenv("REDIS_PORT")
-	pwd := os.Getenv("REDIS_PASSWORD")
+	host := os.Getenv("DRAGONFLY_HOST")
+	port := os.Getenv("DRAGONFLY_PORT")
+	pwd := os.Getenv("DRAGONFLY_PASSWORD")
 
 	client := redis.NewClient(&redis.Options{
 		Addr:         fmt.Sprintf("%s:%s", host, port),
@@ -30,10 +31,10 @@ func Init() {
 		PoolSize:     50,
 		PoolTimeout:  10 * time.Second,
 	})
-
 	if err := client.Ping(context.Background()).Err(); err != nil {
-		panic("Redis Init Failed: " + err.Error())
+		logger.Errof("Redis Init Failed: " + err.Error())
 	}
+	logger.Infof("Connect to dragonflydb")
 	Tokens = &TokenManager{client: client}
 }
 

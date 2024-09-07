@@ -59,6 +59,7 @@ func SubmitCode(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		logger.Errof("Error storing tokens for submission ID %s: %v", subID, err)
 		http.Error(w, "Error storing tokens for the submission", http.StatusInternalServerError)
+		return
 	}
 
 	user_id, _ := r.Context().Value("user_id").(string)
