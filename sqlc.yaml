@@ -12,4 +12,17 @@ sql:
           - db_type: "uuid"
             go_type:
               import: "github.com/google/uuid"
+              type: "NullUUID"
+            nullable: true
+          - db_type: "uuid"
+            go_type:
+              import: "github.com/google/uuid"
               type: "UUID"
+          - db_type: "text"
+            go_type:
+              type: "string"
+              pointer: true
+            nullable: true
+          - db_type: "text"
+            go_type:
+              type: "string"
