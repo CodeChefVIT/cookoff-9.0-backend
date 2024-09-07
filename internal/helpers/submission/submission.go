@@ -4,9 +4,10 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
+	"net/http"
 	"os"
 
-	"github.com/CodeChefVIT/cookoff-backend/internal/db"
 	"github.com/CodeChefVIT/cookoff-backend/internal/helpers/database"
 	logger "github.com/CodeChefVIT/cookoff-backend/internal/helpers/logging"
 	"github.com/google/uuid"
@@ -20,19 +21,18 @@ type Submission struct {
 	Callback   string `json:"callback_url"`
 }
 
+type Token struct {
+	Token string `json:"token"`
+}
+
 type Payload struct {
 	Submissions []Submission `json:"submissions"`
 }
 
-func CreateSubmission(ctx context.Context, questionID string, language_id int, source string) ([]byte, error) {
+func CreateSubmission(ctx context.Context, question_id uuid.UUID, language_id int, source string) ([]byte, error) {
 	callback_url := os.Getenv("CALLBACK_URL")
 
-	question_id, err := uuid.Parse(questionID)
-	if err != nil {
-		return nil, err
-	}
-	query := db.New(database.DBPool)
-	testcases, err := query.GetTestCases(ctx, question_id)
+	testcases, err := database.Queries.GetTestCases(ctx, question_id)
 	if err != nil {
 		logger.Errof("Error getting test cases for question_id %d: %v", question_id, err)
 		return nil, err
@@ -45,8 +45,8 @@ func CreateSubmission(ctx context.Context, questionID string, language_id int, s
 		payload.Submissions[i] = Submission{
 			SourceCode: b64(source),
 			LanguageID: language_id,
-			Input:      b64(testcase.Input.String),
-			Output:     b64(testcase.ExpectedOutput.String),
+			Input:      b64(*testcase.Input),
+			Output:     b64(*testcase.ExpectedOutput),
 			Callback:   callback_url,
 		}
 	}
@@ -57,6 +57,22 @@ func CreateSubmission(ctx context.Context, questionID string, language_id int, s
 	}
 
 	return payloadJSON, nil
+}
+
+func StoreTokens(ctx context.Context, subID uuid.UUID, r *http.Response) error {
+	var tokens []Token
+	err := json.NewDecoder(r.Body).Decode(&tokens)
+	if err != nil {
+		return errors.New("Invalid request payload")
+	}
+
+	for _, t := range tokens {
+		err := Tokens.AddToken(ctx, t.Token, subID.String())
+		if err != nil {
+			return errors.New("Failed to add token")
+		}
+	}
+	return nil
 }
 
 func b64(data string) string {

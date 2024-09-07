@@ -13,6 +13,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.Use(middleware.Logger)
 
 	r.Get("/ping", controllers.HealthCheck)
+	r.Post("/submit", controllers.SubmitCode)
 
 	return r
 }
