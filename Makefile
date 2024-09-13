@@ -3,7 +3,7 @@
 # Build the application
 all: build
 
-DB_URL=postgres://username:password@localhost:5432/database_name?sslmode=disable
+DB_URL=postgres://huehuehue:huehuehue@localhost:5432/huehuehue?sslmode=disable
 DEV_URL=docker://postgres/15/dev
 SCHEMA_FILE=file://database/schema.sql
 MIGRATIONS_DIR=file://database/migrations
@@ -57,9 +57,9 @@ generate:
 apply-schema:
 	@echo "Applying schema to database..."
 	atlas schema apply \
-		--url "$(DB_URL)" \
-		--to "$(SCHEMA_FILE)" \
-		--dev-url "$(DEV_URL)"
+		--url "postgres://huehuehue:huehuehue@localhost:5432/huehuehue?sslmode=disable" \
+		--to "file://database/schema.sql" \
+		--dev-url "docker://postgres/15/dev"
 
 migrate:
 	@echo "Generating migration diff..."
