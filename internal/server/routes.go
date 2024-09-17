@@ -12,10 +12,11 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 
+	// Health check
 	r.Get("/ping", controllers.HealthCheck)
 	r.Post("/submit", controllers.SubmitCode)
 
-
+	// Questions
 	r.Post("/question/create", controllers.CreateQuestion)
 	r.Get("/question", controllers.GetAllQuestion)
 	r.Get("/question/{question_id}", controllers.GetQuestionById)

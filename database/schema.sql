@@ -1,9 +1,11 @@
+
+
 CREATE TABLE "user" (
 	"id" UUID NOT NULL UNIQUE,
 	"email" TEXT NOT NULL UNIQUE, 
 	"regNo" TEXT NOT NULL UNIQUE,
 	"password" TEXT NOT NULL,
-	"role" TEXT NOT NULL,
+	"role" TEXT NOT NULL CHECK ("role" IN ('user', 'admin')) REQUIRED, 
 	"roundQualified" INTEGER NOT NULL DEFAULT 0,
 	"score" INTEGER DEFAULT 0,
 	"name" TEXT NOT NULL,
