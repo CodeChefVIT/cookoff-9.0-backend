@@ -5,7 +5,7 @@ CREATE TABLE "user" (
 	"email" TEXT NOT NULL UNIQUE, 
 	"regNo" TEXT NOT NULL UNIQUE,
 	"password" TEXT NOT NULL,
-	"role" TEXT NOT NULL CHECK ("role" IN ('user', 'admin')) REQUIRED, 
+	"role" TEXT NOT NULL,
 	"roundQualified" INTEGER NOT NULL DEFAULT 0,
 	"score" INTEGER DEFAULT 0,
 	"name" TEXT NOT NULL,
@@ -41,15 +41,18 @@ CREATE TABLE "submissions" (
 );
 
 CREATE TABLE "testcases" (
-	"id" UUID NOT NULL UNIQUE,
-	"expected_output" TEXT,
-	"memory" TEXT,
-	"input" TEXT,
-	"hidden" BOOLEAN,
-	"runtime" TIME,
-	"question_id" UUID NOT NULL,
-	PRIMARY KEY("id")
+    "id" UUID NOT NULL UNIQUE,
+    "expected_output" TEXT,
+    "memory" TEXT,  -- Adjusted based on your requirements
+    "input" TEXT,
+    "hidden" BOOLEAN,
+    "question_id" UUID NOT NULL,
+    PRIMARY KEY("id"),
+    CONSTRAINT fk_question FOREIGN KEY("question_id") REFERENCES "questions"("id") 
+    ON DELETE NO ACTION ON UPDATE NO ACTION
 );
+
+
 
 ALTER TABLE "submissions"
 ADD FOREIGN KEY("question_id") REFERENCES "questions"("id")

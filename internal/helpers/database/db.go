@@ -10,6 +10,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+var DBPool *pgxpool.Pool
 var Queries *db.Queries
 
 func Init() {
@@ -36,15 +37,15 @@ func Init() {
 	logger.Infof(dsn)
 
 	var err error
-	pool, err := pgxpool.New(context.Background(), dsn)
+	DBPool, err = pgxpool.New(context.Background(), dsn)
 	if err != nil {
 		logger.Errof("Unable to connect to database: %v", err)
 		panic(err)
 	}
 
 	logger.Infof("Connected to the database successfully")
-	Queries = db.New(pool)
-	Ping(pool)
+	Queries = db.New(DBPool) // Initialize Queries with the connection pool
+	Ping(DBPool)
 }
 
 func Ping(pool *pgxpool.Pool) {

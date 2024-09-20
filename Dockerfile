@@ -12,6 +12,7 @@ COPY . .
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "-s -w" -o ./dist/app ./cmd/api
 
+
 FROM alpine:latest 
 
 COPY --from=builder /app/dist/app .
