@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/hibiken/asynq"
 	_ "github.com/joho/godotenv/autoload"
 )
 
@@ -14,20 +15,20 @@ type Server struct {
 	port int
 }
 
-func NewServer() *http.Server {
+func NewServer(taskClient *asynq.Client) *http.Server {
 	port, _ := strconv.Atoi(os.Getenv("PORT"))
-	NewServer := &Server{
+
+	newServer := &Server{
 		port: port,
 	}
 
-	// Declare Server config
-	server := &http.Server{
-		Addr:         fmt.Sprintf(":%d", NewServer.port),
-		Handler:      NewServer.RegisterRoutes(),
+	httpServer := &http.Server{
+		Addr:         fmt.Sprintf(":%d", newServer.port),
+		Handler:      newServer.RegisterRoutes(taskClient),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 30 * time.Second,
 	}
 
-	return server
+	return httpServer
 }

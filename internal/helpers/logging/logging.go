@@ -1,6 +1,8 @@
 package logger
 
 import (
+	"os"
+
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -16,11 +18,12 @@ func InitLogger() {
 	cfg.OutputPaths = []string{"stdout"}
 	cfg.ErrorOutputPaths = []string{"stdout"}
 	cfg.InitialFields = map[string]interface{}{"name": "kabutar"}
+	cfg.Encoding = os.Getenv("LOGGING")
 	cfg.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
 	cfg.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 	cfg.Level = zap.NewAtomicLevelAt(outputLevel)
 
-	simple, err := cfg.Build()
+	simple, err := cfg.Build(zap.AddCallerSkip(1))
 	if err != nil {
 		panic(err)
 	}

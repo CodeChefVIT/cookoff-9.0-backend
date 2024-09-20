@@ -32,7 +32,7 @@ type Submission struct {
 	Description     *string
 	Memory          pgtype.Int4
 	UserID          uuid.NullUUID
-	RefID           *string
+	Status          *string
 }
 
 type Testcase struct {

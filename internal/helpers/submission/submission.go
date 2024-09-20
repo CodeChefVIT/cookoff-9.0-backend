@@ -2,24 +2,16 @@ package submission
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"net/http"
 	"os"
 
+	"github.com/CodeChefVIT/cookoff-backend/internal/db"
 	"github.com/CodeChefVIT/cookoff-backend/internal/helpers/database"
 	logger "github.com/CodeChefVIT/cookoff-backend/internal/helpers/logging"
 	"github.com/google/uuid"
 )
-
-type Submission struct {
-	LanguageID int    `json:"language_id"`
-	SourceCode string `json:"source_code"`
-	Input      string `json:"stdin"`
-	Output     string `json:"expected_output"`
-	Callback   string `json:"callback_url"`
-}
 
 type Token struct {
 	Token string `json:"token"`
@@ -32,7 +24,7 @@ type Payload struct {
 func CreateSubmission(ctx context.Context, question_id uuid.UUID, language_id int, source string) ([]byte, error) {
 	callback_url := os.Getenv("CALLBACK_URL")
 
-	testcases, err := database.Queries.GetTestCases(ctx, question_id)
+	testcases, err := database.Queries.GetTestCases(ctx, db.GetTestCasesParams{QuestionID: question_id, Column2: false})
 	if err != nil {
 		logger.Errof("Error getting test cases for question_id %d: %v", question_id, err)
 		return nil, err
@@ -43,10 +35,10 @@ func CreateSubmission(ctx context.Context, question_id uuid.UUID, language_id in
 
 	for i, testcase := range testcases {
 		payload.Submissions[i] = Submission{
-			SourceCode: b64(source),
+			SourceCode: B64(source),
 			LanguageID: language_id,
-			Input:      b64(*testcase.Input),
-			Output:     b64(*testcase.ExpectedOutput),
+			Input:      B64(*testcase.Input),
+			Output:     B64(*testcase.ExpectedOutput),
 			Callback:   callback_url,
 		}
 	}
@@ -75,6 +67,10 @@ func StoreTokens(ctx context.Context, subID uuid.UUID, r *http.Response) error {
 	return nil
 }
 
-func b64(data string) string {
-	return base64.StdEncoding.EncodeToString([]byte(data))
+func GetSubID(ctx context.Context, token string) (string, error) {
+	subID, err := Tokens.GetSubID(ctx, token)
+	if err != nil {
+		return "", err
+	}
+	return subID, nil
 }

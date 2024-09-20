@@ -8,7 +8,7 @@ import (
 	"github.com/CodeChefVIT/cookoff-backend/internal/db"
 	"github.com/CodeChefVIT/cookoff-backend/internal/helpers/database"
 	httphelpers "github.com/CodeChefVIT/cookoff-backend/internal/helpers/http"
-	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/jwtauth/v5"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
@@ -26,7 +26,6 @@ type Question struct {
 
 func GetAllQuestion(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-
 	fetchedQuestions, err := database.Queries.GetQuestions(ctx)
 	if err != nil {
 		httphelpers.WriteError(w, http.StatusBadRequest, err)
@@ -36,16 +35,15 @@ func GetAllQuestion(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetQuestionById(w http.ResponseWriter, r *http.Request) {
-	ctx := context.Background()
-
-	questionIdStr := chi.URLParam(r, "question_id")
-	question_id, err := uuid.Parse(questionIdStr)
-
+	ctx := r.Context()
+	var question Question
+	err := httphelpers.ParseJSON(r, &question)
 	if err != nil {
 		httphelpers.WriteError(w, http.StatusInternalServerError, err)
 		return
 	}
-	fetchedQuestion, err := database.Queries.GetQuestion(ctx, question_id)
+
+	fetchedQuestion, err := database.Queries.GetQuestion(ctx, question.ID)
 	if err != nil {
 		httphelpers.WriteError(w, http.StatusBadRequest, err)
 		return
@@ -54,9 +52,38 @@ func GetQuestionById(w http.ResponseWriter, r *http.Request) {
 	httphelpers.WriteJSON(w, 200, fetchedQuestion)
 }
 
+func GetQuestionsByRound(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	_, claims, err := jwtauth.FromContext(r.Context())
+	if err != nil {
+		httphelpers.WriteError(w, http.StatusUnauthorized, "unauthorized")
+		return 
+	}
+	idStr, ok := claims["user_id"].(string)
+	if !ok {
+		http.Error(w, "Role not found in token", http.StatusUnauthorized)
+		return
+	}
+	id, err := uuid.Parse(idStr)
+	if err != nil {
+		httphelpers.WriteError(w, http.StatusInternalServerError ,"Could not parse user_id")
+	}
+
+	user, err := database.Queries.GetUserById(ctx, id)
+	if err != nil{
+		httphelpers.WriteError(w, http.StatusInternalServerError, err)
+	}
+	
+	questions, err := database.Queries.GetQuestionByRound(ctx, user.RoundQualified)
+	if err != nil {
+		httphelpers.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+	httphelpers.WriteJSON(w, 200, questions)
+}
+
 func CreateQuestion(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-
 	var question Question
 	err := httphelpers.ParseJSON(r, &question)
 	if err != nil {
@@ -84,15 +111,14 @@ func CreateQuestion(w http.ResponseWriter, r *http.Request) {
 func DeleteQuestion(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
-	questionIdStr := chi.URLParam(r, "question_id")
-	question_id, err := uuid.Parse(questionIdStr)
-
+	var question Question
+	err := httphelpers.ParseJSON(r, &question)
 	if err != nil {
 		httphelpers.WriteError(w, http.StatusInternalServerError, err)
 		return
 	}
 
-	err = database.Queries.DeleteQuestion(ctx, question_id)
+	err = database.Queries.DeleteQuestion(ctx, question.ID)
 	if err != nil {
 		httphelpers.WriteError(w, http.StatusBadRequest, err)
 		return
@@ -102,18 +128,14 @@ func DeleteQuestion(w http.ResponseWriter, r *http.Request) {
 func UpdateQuestion(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 
-	questionIdStr := chi.URLParam(r, "question_id")
-	question_id, err := uuid.Parse(questionIdStr)
-
+	var updateQuestion Question
+	err := httphelpers.ParseJSON(r, &updateQuestion)
 	if err != nil {
 		httphelpers.WriteError(w, http.StatusInternalServerError, err)
 		return
 	}
 
-	var updateQuestion Question
-	httphelpers.ParseJSON(r, &updateQuestion)
-
-	question, err := database.Queries.GetQuestion(ctx, question_id)
+	question, err := database.Queries.GetQuestion(ctx, updateQuestion.ID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			httphelpers.WriteError(w, http.StatusNotFound, err)
@@ -122,9 +144,9 @@ func UpdateQuestion(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	nulVal := pgtype.Int4{
-        Int32: 0,       
-        Valid: false,   
-    }
+		Int32: 0,
+		Valid: false,
+	}
 
 	if updateQuestion.Description != nil {
 		question.Description = updateQuestion.Description
@@ -135,7 +157,7 @@ func UpdateQuestion(w http.ResponseWriter, r *http.Request) {
 	if updateQuestion.InputFormat != nil {
 		question.InputFormat = updateQuestion.InputFormat
 	}
-	if updateQuestion.Points != nulVal{
+	if updateQuestion.Points != nulVal {
 		question.Points = updateQuestion.Points
 	}
 	if updateQuestion.Round != 0 {
@@ -149,14 +171,14 @@ func UpdateQuestion(w http.ResponseWriter, r *http.Request) {
 	}
 
 	err = database.Queries.UpdateQuestion(ctx, db.UpdateQuestionParams{
-		Description: question.Description,
-		Title: question.Title,
-		InputFormat: question.InputFormat,
-		Points: question.Points,
-		Round: question.Round,
-		Constraints: question.Constraints,
+		Description:  question.Description,
+		Title:        question.Title,
+		InputFormat:  question.InputFormat,
+		Points:       question.Points,
+		Round:        question.Round,
+		Constraints:  question.Constraints,
 		OutputFormat: question.OutputFormat,
-		ID: question_id,
+		ID:           updateQuestion.ID,
 	})
 	if err != nil {
 		httphelpers.WriteError(w, http.StatusInternalServerError, err)

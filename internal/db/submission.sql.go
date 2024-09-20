@@ -9,6 +9,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createSubmission = `-- name: CreateSubmission :exec
@@ -33,14 +34,42 @@ func (q *Queries) CreateSubmission(ctx context.Context, arg CreateSubmissionPara
 	return err
 }
 
+const getSubmission = `-- name: GetSubmission :one
+SELECT 
+    testcases_passed, 
+    testcases_failed 
+FROM 
+    submissions 
+WHERE 
+    id = $1
+`
+
+type GetSubmissionRow struct {
+	TestcasesPassed pgtype.Int4
+	TestcasesFailed pgtype.Int4
+}
+
+func (q *Queries) GetSubmission(ctx context.Context, id uuid.UUID) (GetSubmissionRow, error) {
+	row := q.db.QueryRow(ctx, getSubmission, id)
+	var i GetSubmissionRow
+	err := row.Scan(&i.TestcasesPassed, &i.TestcasesFailed)
+	return i, err
+}
+
 const getTestCases = `-- name: GetTestCases :many
 SELECT id, expected_output, memory, input, hidden, question_id 
 FROM "testcases"
 WHERE "question_id" = $1
+  AND (CASE WHEN $2 = TRUE THEN hidden = FALSE ELSE TRUE END)
 `
 
-func (q *Queries) GetTestCases(ctx context.Context, questionID uuid.UUID) ([]Testcase, error) {
-	rows, err := q.db.Query(ctx, getTestCases, questionID)
+type GetTestCasesParams struct {
+	QuestionID uuid.UUID
+	Column2    interface{}
+}
+
+func (q *Queries) GetTestCases(ctx context.Context, arg GetTestCasesParams) ([]Testcase, error) {
+	rows, err := q.db.Query(ctx, getTestCases, arg.QuestionID, arg.Column2)
 	if err != nil {
 		return nil, err
 	}
@@ -64,4 +93,29 @@ func (q *Queries) GetTestCases(ctx context.Context, questionID uuid.UUID) ([]Tes
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateSubmission = `-- name: UpdateSubmission :exec
+UPDATE "submissions"
+SET "testcases_passed" = $1, "testcases_failed" = $2, "runtime" = $3, "memory" = $4
+WHERE "id" = $5
+`
+
+type UpdateSubmissionParams struct {
+	TestcasesPassed pgtype.Int4
+	TestcasesFailed pgtype.Int4
+	Runtime         pgtype.Numeric
+	Memory          pgtype.Int4
+	ID              uuid.UUID
+}
+
+func (q *Queries) UpdateSubmission(ctx context.Context, arg UpdateSubmissionParams) error {
+	_, err := q.db.Exec(ctx, updateSubmission,
+		arg.TestcasesPassed,
+		arg.TestcasesFailed,
+		arg.Runtime,
+		arg.Memory,
+		arg.ID,
+	)
+	return err
 }
