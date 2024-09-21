@@ -28,14 +28,12 @@ require (
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/hibiken/asynq v0.24.1
 	github.com/jackc/pgpassfile v1.0.0 // indirect
-<<<<<<< HEAD
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
 	golang.org/x/crypto v0.27.0 // indirect
 	golang.org/x/sync v0.8.0 // indirect
 	golang.org/x/text v0.18.0 // indirect
-=======
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
 	github.com/jackc/puddle/v2 v2.2.1 // indirect
 	github.com/lestrrat-go/blackmagic v1.0.2 // indirect
@@ -50,5 +48,4 @@ require (
 	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
->>>>>>> 5b0c4fe10ac90763743b9c34003d94ed78322b6b
 )
