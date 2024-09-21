@@ -9,11 +9,54 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const createUser = `-- name: CreateUser :one
+INSERT INTO users (id, email, reg_no, password, role, round_qualified, score, name)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+RETURNING id, email, reg_no, password, role, round_qualified, score, name
+`
+
+type CreateUserParams struct {
+	ID             uuid.UUID
+	Email          string
+	RegNo          string
+	Password       string
+	Role           string
+	RoundQualified int32
+	Score          pgtype.Int4
+	Name           string
+}
+
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
+	row := q.db.QueryRow(ctx, createUser,
+		arg.ID,
+		arg.Email,
+		arg.RegNo,
+		arg.Password,
+		arg.Role,
+		arg.RoundQualified,
+		arg.Score,
+		arg.Name,
+	)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.RegNo,
+		&i.Password,
+		&i.Role,
+		&i.RoundQualified,
+		&i.Score,
+		&i.Name,
+	)
+	return i, err
+}
+
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, email, "regNo", password, role, "roundQualified", "score", name
-FROM "user"
+SELECT id, email, reg_no, password, role, round_qualified, score, name
+FROM users
 WHERE email = $1
 `
 
@@ -34,8 +77,8 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 }
 
 const getUserById = `-- name: GetUserById :one
-SELECT id, email, "regNo", password, role, "roundQualified", "score", name
-FROM "user"
+SELECT id, email, reg_no, password, role, round_qualified, score, name
+FROM users
 WHERE id = $1
 `
 
@@ -56,8 +99,8 @@ func (q *Queries) GetUserById(ctx context.Context, id uuid.UUID) (User, error) {
 }
 
 const getUserByUsername = `-- name: GetUserByUsername :one
-SELECT id, email, "regNo", password, role, "roundQualified", "score", name
-FROM "user"
+SELECT id, email, reg_no, password, role, round_qualified, score, name
+FROM users
 WHERE name = $1
 `
 

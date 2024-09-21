@@ -12,14 +12,8 @@ func WriteJSON(writer http.ResponseWriter, status int, v any) {
 	if err != nil {
 		panic(err)
 	}
-
 }
 
-func WriteError(w http.ResponseWriter, status int, v any) {
-	w.Header().Add("Content-Type", "application/json")
-	w.WriteHeader(status)
-	err := json.NewEncoder(w).Encode(v)
-	if err != nil {
-		panic(err)
-	}
+func WriteError(w http.ResponseWriter, status int, err string) {
+	WriteJSON(w, status, map[string]string{"error": err})
 }

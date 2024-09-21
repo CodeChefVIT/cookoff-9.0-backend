@@ -13,7 +13,7 @@ import (
 )
 
 const createSubmission = `-- name: CreateSubmission :exec
-INSERT INTO "submissions" ("id", "user_id", "question_id", "language_id")
+INSERT INTO submissions (id, user_id, question_id, language_id)
 VALUES ($1, $2, $3, $4)
 `
 
@@ -57,9 +57,15 @@ func (q *Queries) GetSubmission(ctx context.Context, id uuid.UUID) (GetSubmissio
 }
 
 const getTestCases = `-- name: GetTestCases :many
+
 SELECT id, expected_output, memory, input, hidden, question_id 
 FROM "testcases"
 WHERE "question_id" = $1
+
+SELECT id, expected_output, memory, input, hidden, runtime, question_id 
+FROM testcases
+WHERE question_id = $1
+
   AND (CASE WHEN $2 = TRUE THEN hidden = FALSE ELSE TRUE END)
 `
 
@@ -96,9 +102,9 @@ func (q *Queries) GetTestCases(ctx context.Context, arg GetTestCasesParams) ([]T
 }
 
 const updateSubmission = `-- name: UpdateSubmission :exec
-UPDATE "submissions"
-SET "testcases_passed" = $1, "testcases_failed" = $2, "runtime" = $3, "memory" = $4
-WHERE "id" = $5
+UPDATE submissions
+SET testcases_passed = $1, testcases_failed = $2, runtime = $3, memory = $4
+WHERE id = $5
 `
 
 type UpdateSubmissionParams struct {

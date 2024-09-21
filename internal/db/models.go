@@ -26,8 +26,8 @@ type Submission struct {
 	TestcasesPassed pgtype.Int4
 	TestcasesFailed pgtype.Int4
 	Runtime         pgtype.Numeric
-	SubTime         pgtype.Timestamp
-	TestcasesID     uuid.NullUUID
+	SubmissionTime  pgtype.Timestamp
+	TestcaseID      uuid.NullUUID
 	LanguageID      int32
 	Description     *string
 	Memory          pgtype.Int4

@@ -11,7 +11,7 @@ import (
 func RoleFromToken (w http.ResponseWriter,r *http.Request, user string) bool {
 	_, claims, err := jwtauth.FromContext(r.Context())
 	if err != nil {
-		httphelpers.WriteError(w, http.StatusUnauthorized, "unauthorized")
+		httphelpers.WriteError(w, http.StatusUnauthorized, err.Error())
 		return false
 	}
 	role, ok := claims["role"].(string)
@@ -20,8 +20,8 @@ func RoleFromToken (w http.ResponseWriter,r *http.Request, user string) bool {
 		return ok
 	}
 	if role != user {
-		msg := fmt.Sprintf("Access Denied: %s only", role)
-		http.Error(w, msg, http.StatusForbidden)
+		msg := fmt.Sprintf("Access Denied: %s not allowed", role)
+		httphelpers.WriteError(w,  http.StatusForbidden, msg)
 		return false
 	}
 	return true

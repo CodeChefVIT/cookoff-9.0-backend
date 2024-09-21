@@ -13,9 +13,9 @@ import (
 )
 
 const createQuestion = `-- name: CreateQuestion :one
-INSERT INTO "questions" (id, description, title, "inputFormat", points, round, constraints,"outputFormat")
+INSERT INTO questions (id, description, title, "input_format", points, round, constraints, output_format)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-RETURNING id, description, title, "inputFormat", points, round, constraints, "outputFormat"
+RETURNING id, description, title, input_format, points, round, constraints, output_format
 `
 
 type CreateQuestionParams struct {
@@ -55,8 +55,8 @@ func (q *Queries) CreateQuestion(ctx context.Context, arg CreateQuestionParams) 
 }
 
 const deleteQuestion = `-- name: DeleteQuestion :exec
-DELETE FROM "questions" 
-WHERE "id" = $1
+DELETE FROM questions 
+WHERE id = $1
 `
 
 func (q *Queries) DeleteQuestion(ctx context.Context, id uuid.UUID) error {
@@ -65,8 +65,8 @@ func (q *Queries) DeleteQuestion(ctx context.Context, id uuid.UUID) error {
 }
 
 const getQuestion = `-- name: GetQuestion :one
-SELECT id, description, title, "inputFormat", points, round, constraints, "outputFormat" FROM "questions" 
-WHERE "id" = $1 LIMIT 1
+SELECT id, description, title, input_format, points, round, constraints, output_format FROM questions
+WHERE id = $1 LIMIT 1
 `
 
 func (q *Queries) GetQuestion(ctx context.Context, id uuid.UUID) (Question, error) {
@@ -86,7 +86,7 @@ func (q *Queries) GetQuestion(ctx context.Context, id uuid.UUID) (Question, erro
 }
 
 const getQuestionByRound = `-- name: GetQuestionByRound :many
-SELECT id, description, title, "inputFormat", points, round, constraints, "outputFormat" FROM "questions"
+SELECT id, description, title, input_format, points, round, constraints, output_format FROM questions
 WHERE round = $1
 `
 
@@ -120,8 +120,8 @@ func (q *Queries) GetQuestionByRound(ctx context.Context, round int32) ([]Questi
 }
 
 const getQuestions = `-- name: GetQuestions :many
-SELECT id, description, title, "inputFormat", points, round, constraints, "outputFormat" 
-FROM "questions"
+SELECT id, description, title, input_format, points, round, constraints, output_format
+FROM questions
 `
 
 func (q *Queries) GetQuestions(ctx context.Context) ([]Question, error) {
@@ -154,8 +154,8 @@ func (q *Queries) GetQuestions(ctx context.Context) ([]Question, error) {
 }
 
 const updateQuestion = `-- name: UpdateQuestion :exec
-UPDATE "questions" 
-SET description = $1, title = $2, "inputFormat" = $3, points = $4, round = $5, constraints = $6, "outputFormat" = $7
+UPDATE questions
+SET description = $1, title = $2, input_format = $3, points = $4, round = $5, constraints = $6, output_format = $7
 WHERE id = $8
 `
 
