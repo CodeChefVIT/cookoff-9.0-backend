@@ -40,6 +40,14 @@ type Status struct {
 	Description string      `json:"description"`
 }
 
+type resultresp struct {
+	ID          string `json:"submission_id"`
+	QuestionID  string `json:"question_id"`
+	Passed      int    `json:"testcases_passed"`
+	Failed      int    `json:"testcases_failed"`
+	Description string `json:"description"`
+}
+
 func B64(data string) string {
 	return base64.StdEncoding.EncodeToString([]byte(data))
 }

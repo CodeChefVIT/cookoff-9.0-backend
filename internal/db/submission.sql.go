@@ -56,6 +56,55 @@ func (q *Queries) GetSubmission(ctx context.Context, id uuid.UUID) (GetSubmissio
 	return i, err
 }
 
+const getSubmissionByID = `-- name: GetSubmissionByID :one
+SELECT
+    id,
+    question_id,
+    testcases_passed,
+    testcases_failed,
+    description,
+    user_id
+FROM submissions
+WHERE id = $1
+`
+
+type GetSubmissionByIDRow struct {
+	ID              uuid.UUID
+	QuestionID      uuid.UUID
+	TestcasesPassed pgtype.Int4
+	TestcasesFailed pgtype.Int4
+	Description     *string
+	UserID          uuid.NullUUID
+}
+
+func (q *Queries) GetSubmissionByID(ctx context.Context, id uuid.UUID) (GetSubmissionByIDRow, error) {
+	row := q.db.QueryRow(ctx, getSubmissionByID, id)
+	var i GetSubmissionByIDRow
+	err := row.Scan(
+		&i.ID,
+		&i.QuestionID,
+		&i.TestcasesPassed,
+		&i.TestcasesFailed,
+		&i.Description,
+		&i.UserID,
+	)
+	return i, err
+}
+
+const getSubmissionStatusByID = `-- name: GetSubmissionStatusByID :one
+SELECT
+    status
+FROM submissions
+WHERE id = $1
+`
+
+func (q *Queries) GetSubmissionStatusByID(ctx context.Context, id uuid.UUID) (*string, error) {
+	row := q.db.QueryRow(ctx, getSubmissionStatusByID, id)
+	var status *string
+	err := row.Scan(&status)
+	return status, err
+}
+
 const getSubmissionsWithRoundByUserId = `-- name: GetSubmissionsWithRoundByUserId :many
 SELECT q.round, q.title, q.description, s.id, s.question_id, s.testcases_passed, s.testcases_failed, s.runtime, s.submission_time, s.testcase_id, s.language_id, s.description, s.memory, s.user_id, s.status
 FROM submissions s

@@ -36,6 +36,7 @@ func (s *Server) RegisterRoutes(taskClient *asynq.Client) http.Handler {
 		protected.Get("/protected", controllers.ProtectedHandler)
 		protected.Post("/submit", controllers.SubmitCode)
 		protected.Post("/runcode", controllers.RunCode)
+		protected.Get("/result", controllers.GetResult)
 		protected.Get("/question/round", controllers.GetQuestionsByRound)
 
 		adminRoutes := protected.With(middlewares.RoleAuthorizationMiddleware("admin"))

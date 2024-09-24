@@ -27,3 +27,20 @@ SELECT q.round, q.title, q.description, s.*
 FROM submissions s
 INNER JOIN questions q ON s.question_id = q.id
 WHERE s.user_id = $1;
+
+-- name: GetSubmissionByID :one
+SELECT
+    id,
+    question_id,
+    testcases_passed,
+    testcases_failed,
+    description,
+    user_id
+FROM submissions
+WHERE id = $1;
+
+-- name: GetSubmissionStatusByID :one
+SELECT
+    status
+FROM submissions
+WHERE id = $1;
