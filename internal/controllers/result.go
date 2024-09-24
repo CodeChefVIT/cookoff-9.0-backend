@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 	"time"
 
@@ -21,7 +20,7 @@ func GetResult(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 
 	var req resultreq
-	err := json.NewDecoder(r.Body).Decode(&req)
+	err := httphelpers.ParseJSON(r, &req)
 	if err != nil {
 		httphelpers.WriteError(w, http.StatusBadRequest, "Invalid request payload")
 		return
