@@ -7,6 +7,7 @@ CREATE TABLE users (
 	round_qualified INTEGER NOT NULL DEFAULT 0,
 	score INTEGER DEFAULT 0,
 	name TEXT NOT NULL,
+	is_banned BOOLEAN DEFAULT FALSE,
 	PRIMARY KEY(id)
 );
 

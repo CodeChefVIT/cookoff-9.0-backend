@@ -17,3 +17,18 @@ WHERE name = $1;
 SELECT id, email, reg_no, password, role, round_qualified, score, name
 FROM users
 WHERE id = $1;
+-- name: GetAllUsers :many
+SELECT id, email, reg_no, password, role, round_qualified, score, name
+FROM users;
+-- name: UpgradeUsersToRound :batchexec
+UPDATE users
+SET round_qualified = GREATEST(round_qualified, $2)
+WHERE id = $1;
+-- name: BanUser :exec
+UPDATE users
+SET is_banned = TRUE
+WHERE id = $1;
+-- name: UnbanUser :exec
+UPDATE users
+SET is_banned = FALSE
+WHERE id = $1;

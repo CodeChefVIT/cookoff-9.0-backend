@@ -54,4 +54,5 @@ type User struct {
 	RoundQualified int32
 	Score          pgtype.Int4
 	Name           string
+	IsBanned       pgtype.Bool
 }
