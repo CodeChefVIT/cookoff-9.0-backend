@@ -18,6 +18,8 @@ type Token struct {
 	Token string `json:"token"`
 }
 
+var ErrNoTestCases = fmt.Errorf("no testcases present for question_id")
+
 type Payload struct {
 	Submissions []Submission `json:"submissions"`
 }
@@ -40,6 +42,11 @@ func CreateSubmission(
 		}
 		return nil, nil, fmt.Errorf("error getting test cases for question_id %d: %v", question_id, err)
 	}
+
+	if len(testcases) == 0 {
+		return nil, nil, ErrNoTestCases
+	}
+
 	payload := Payload{
 		Submissions: make([]Submission, len(testcases)),
 	}

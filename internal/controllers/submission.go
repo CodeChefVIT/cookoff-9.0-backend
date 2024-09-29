@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -70,6 +71,14 @@ func SubmitCode(w http.ResponseWriter, r *http.Request) {
 
 	payload, testcase_id, err := submission.CreateSubmission(ctx, question_id, req.LanguageID, req.SourceCode)
 	if err != nil {
+		if errors.Is(err, submission.ErrNoTestCases) {
+			httphelpers.WriteError(
+				w,
+				http.StatusNotFound,
+				err.Error(),
+			)
+			return
+		}
 		httphelpers.WriteError(
 			w,
 			http.StatusInternalServerError,
