@@ -2,12 +2,14 @@ package server
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/CodeChefVIT/cookoff-backend/internal/controllers"
 	"github.com/CodeChefVIT/cookoff-backend/internal/helpers/auth"
 	"github.com/CodeChefVIT/cookoff-backend/internal/middlewares"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/httprate"
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/hibiken/asynq"
 )
@@ -15,6 +17,7 @@ import (
 func (s *Server) RegisterRoutes(taskClient *asynq.Client) http.Handler {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
+	r.Use(httprate.LimitByRealIP(50, time.Minute))
 
 	r.Get("/ping", controllers.HealthCheck)
 	r.Put("/callback", func(w http.ResponseWriter, r *http.Request) {
