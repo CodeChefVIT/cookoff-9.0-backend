@@ -33,3 +33,4 @@ certbot
 ./nginx/nginx.conf
 nginx/
 **.conf
+users.csv
