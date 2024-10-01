@@ -11,7 +11,7 @@
         <div style="border: 1px solid #ccc; padding: 10px; text-align: center; border-radius: 8px; width: 200px;">
           <a href="https://discord.com/invite/GRc3v6n" target="_blank">
             <img src="https://avatars.githubusercontent.com/u/25365178?s=200&v=4" alt="Judge0" style="width:150px; height:150px; border-radius: 8px;">
-            <p>Judge0</p>
+            <p>Join Judge0 Discord</p>
           </a>
         </div>
       </td>
@@ -19,7 +19,7 @@
         <div style="border: 1px solid #ccc; padding: 10px; text-align: center; border-radius: 8px; width: 200px;">
           <a href="https://discord.com/invite/dCq3XhgRXs" target="_blank">
             <img src="https://pbs.twimg.com/profile_images/1742205229104259072/2ISO3o7-_400x400.jpg" alt="Sulu" style="width:150px; height:150px; border-radius: 8px;">
-            <p>Sulu</p>
+            <p>Join Sulu Discord</p>
           </a>
         </div>
       </td>
