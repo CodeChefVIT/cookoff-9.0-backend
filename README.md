@@ -27,7 +27,7 @@
   </table>
 </div>
 
-> This is the backend for the cookoff coding portal for the 9th edition of cookoff
+> This is the backend for the cookoff coding portal for the 9th edition of cookoff. (first working portal :skull:)
 
 ---
 
