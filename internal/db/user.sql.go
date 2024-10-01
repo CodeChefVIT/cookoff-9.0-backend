@@ -36,7 +36,7 @@ type CreateUserParams struct {
 	Password       string
 	Role           string
 	RoundQualified int32
-	Score          pgtype.Int4
+	Score          pgtype.Numeric
 	Name           string
 }
 
@@ -91,6 +91,37 @@ func (q *Queries) GetAllUsers(ctx context.Context) ([]User, error) {
 			&i.Name,
 			&i.IsBanned,
 		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getLeaderboard = `-- name: GetLeaderboard :many
+select id, name, score from users
+order by score
+`
+
+type GetLeaderboardRow struct {
+	ID    uuid.UUID
+	Name  string
+	Score pgtype.Numeric
+}
+
+func (q *Queries) GetLeaderboard(ctx context.Context) ([]GetLeaderboardRow, error) {
+	rows, err := q.db.Query(ctx, getLeaderboard)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetLeaderboardRow
+	for rows.Next() {
+		var i GetLeaderboardRow
+		if err := rows.Scan(&i.ID, &i.Name, &i.Score); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -178,5 +209,43 @@ WHERE id = $1
 
 func (q *Queries) UnbanUser(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.Exec(ctx, unbanUser, id)
+	return err
+}
+
+const updateProfile = `-- name: UpdateProfile :exec
+UPDATE users SET reg_no = $1, password = $2, name = $3
+WHERE id = $4
+`
+
+type UpdateProfileParams struct {
+	RegNo    string
+	Password string
+	Name     string
+	ID       uuid.UUID
+}
+
+func (q *Queries) UpdateProfile(ctx context.Context, arg UpdateProfileParams) error {
+	_, err := q.db.Exec(ctx, updateProfile,
+		arg.RegNo,
+		arg.Password,
+		arg.Name,
+		arg.ID,
+	)
+	return err
+}
+
+const upgradeUsersToRound = `-- name: UpgradeUsersToRound :exec
+UPDATE users
+SET round_qualified = $2
+WHERE id::TEXT = ANY($1::TEXT[])
+`
+
+type UpgradeUsersToRoundParams struct {
+	Column1        []string
+	RoundQualified int32
+}
+
+func (q *Queries) UpgradeUsersToRound(ctx context.Context, arg UpgradeUsersToRoundParams) error {
+	_, err := q.db.Exec(ctx, upgradeUsersToRound, arg.Column1, arg.RoundQualified)
 	return err
 }

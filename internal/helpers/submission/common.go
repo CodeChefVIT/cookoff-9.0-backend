@@ -40,6 +40,26 @@ type Status struct {
 	Description string      `json:"description"`
 }
 
+type tc_result struct {
+	ID          string  `json:"testcase_id"`
+	Runtime     float64 `json:"runtime"`
+	Memory      float64 `json:"memory"`
+	Status      string  `json:"status"`
+	Description string  `json:"description"`
+}
+
+type resultresp struct {
+	ID             string      `json:"submission_id"`
+	QuestionID     string      `json:"question_id"`
+	Passed         int         `json:"testcases_passed"`
+	Failed         int         `json:"testcases_failed"`
+	Runtime        float64     `json:"submission_runtime"`
+	Memory         float64     `json:"submission_memory"`
+	SubmissionTime string      `json:"submission_time"`
+	Description    string      `json:"description"`
+	Testcases      []tc_result `json:"testcases"`
+}
+
 func B64(data string) string {
 	return base64.StdEncoding.EncodeToString([]byte(data))
 }
@@ -76,6 +96,23 @@ func SendToJudge0(judge0Url *url.URL, params url.Values, payload []byte) (*http.
 		return nil, fmt.Errorf("error creating request to Judge0: %v", err)
 	}
 
+	judgereq.Header.Add("Content-Type", "application/json")
+	judgereq.Header.Add("Accept", "application/json")
+	judgereq.Header.Add("Authorization", fmt.Sprintf("Bearer %v", bearer))
+
+	resp, err := http.DefaultClient.Do(judgereq)
+	if err != nil {
+		return nil, fmt.Errorf("error sending request to Judge0: %v", err)
+	}
+
+	return resp, nil
+}
+
+func BatchGet(url string) (*http.Response, error) {
+	judgereq, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
 	judgereq.Header.Add("Content-Type", "application/json")
 	judgereq.Header.Add("Accept", "application/json")
 	judgereq.Header.Add("Authorization", fmt.Sprintf("Bearer %v", bearer))

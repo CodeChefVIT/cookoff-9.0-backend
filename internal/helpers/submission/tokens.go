@@ -17,8 +17,8 @@ func Init(client *redis.Client) {
 	Tokens = &TokenManager{client: client}
 }
 
-func (tm *TokenManager) AddToken(ctx context.Context, token string, subID string) error {
-	err := tm.client.Set(ctx, fmt.Sprintf("token:%s", token), subID, 0).Err()
+func (tm *TokenManager) AddToken(ctx context.Context, token string, subID string, testcaseid string) error {
+	err := tm.client.Set(ctx, fmt.Sprintf("token:%s", token), fmt.Sprintf("%s:%s", subID, testcaseid), 0).Err()
 	if err != nil {
 		return err
 	}
@@ -40,8 +40,21 @@ func (tm *TokenManager) GetSubID(ctx context.Context, token string) (string, err
 	return subID, nil
 }
 
+func (tm *TokenManager) GetTokenMember(ctx context.Context, subID string) ([]string, error) {
+	members, err := tm.client.SMembers(ctx, fmt.Sprintf("sub:%s:tokens", subID)).Result()
+	return members, err
+}
+
+func (tm *TokenManager) GetTokenCount(ctx context.Context, subID string) (int64, error) {
+	tokenCount, err := tm.client.SCard(ctx, fmt.Sprintf("sub:%s:tokens", subID)).Result()
+	if err != nil {
+		return 0, err
+	}
+	return tokenCount, nil
+}
+
 func (tm *TokenManager) DeleteToken(ctx context.Context, token string) error {
-	subID, err := tm.GetSubID(ctx, token)
+	subID, _, err := GetSubID(ctx, token)
 	if err != nil {
 		return err
 	}

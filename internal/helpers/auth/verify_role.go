@@ -15,6 +15,5 @@ func RoleFromToken(w http.ResponseWriter, r *http.Request, requiredRole string) 
 	}
 	role := claims["role"].(string)
 
-	return role != requiredRole
+	return role == requiredRole
 }
-

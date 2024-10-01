@@ -26,13 +26,13 @@ type Data struct {
 const TypeProcessSubmission = "submission:process"
 
 func CallbackUrl(w http.ResponseWriter, r *http.Request, taskClient *asynq.Client) {
+	log.Println("Callback URL hit")
 	var data Data
 	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
 		log.Println("Error decoding JSON: ", err)
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
-	log.Println("Callback URL hit")
 
 	payload, err := json.Marshal(data)
 	if err != nil {

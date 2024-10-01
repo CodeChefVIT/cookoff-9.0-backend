@@ -17,8 +17,8 @@ import (
 )
 
 type resp struct {
-	TestCasesPassed int                    `json:"no_testcases_passed"`
 	Result          []submission.Judgeresp `json:"result"`
+	TestCasesPassed int                    `json:"no_testcases_passed"`
 }
 
 func RunCode(w http.ResponseWriter, r *http.Request) {
@@ -32,7 +32,11 @@ func RunCode(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := validator.ValidatePayload(w, req); err != nil {
-		httphelpers.WriteError(w, http.StatusNotAcceptable, "Please provide values for all required fields.")
+		httphelpers.WriteError(
+			w,
+			http.StatusNotAcceptable,
+			"Please provide values for all required fields.",
+		)
 		return
 	}
 
@@ -49,15 +53,26 @@ func RunCode(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	testcases, err := database.Queries.GetTestCases(ctx, db.GetTestCasesParams{QuestionID: question_id, Column2: true})
+	testcases, err := database.Queries.GetTestCases(
+		ctx,
+		db.GetTestCasesParams{QuestionID: question_id, Column2: true},
+	)
 	if err != nil {
-		httphelpers.WriteError(w, http.StatusBadRequest, fmt.Sprintf("error getting test cases for question_id %d: %v", question_id, err))
+		httphelpers.WriteError(
+			w,
+			http.StatusBadRequest,
+			fmt.Sprintf("error getting test cases for question_id %d: %v", question_id, err),
+		)
 		return
 	}
 
 	judge0URL, err := url.Parse(JUDGE0_URI + "/submissions")
 	if err != nil {
-		httphelpers.WriteError(w, http.StatusInternalServerError, fmt.Sprintf("Error parsing Judge0 URL: %v", err))
+		httphelpers.WriteError(
+			w,
+			http.StatusInternalServerError,
+			fmt.Sprintf("Error parsing Judge0 URL: %v", err),
+		)
 		return
 	}
 	params := url.Values{}
@@ -87,14 +102,22 @@ func RunCode(w http.ResponseWriter, r *http.Request) {
 
 		payloadJSON, err := json.Marshal(payload)
 		if err != nil {
-			httphelpers.WriteError(w, http.StatusInternalServerError, fmt.Sprintf("error marshaling payload: %v", err))
+			httphelpers.WriteError(
+				w,
+				http.StatusInternalServerError,
+				fmt.Sprintf("error marshaling payload: %v", err),
+			)
 			return
 		}
 
 		result, err := submission.SendToJudge0(judge0URL, params, payloadJSON)
 		if err != nil {
 			logger.Errof("Error sending request to Judge0: %v", err)
-			httphelpers.WriteError(w, http.StatusInternalServerError, fmt.Sprintf("Error sending request to Judge0: %v", err))
+			httphelpers.WriteError(
+				w,
+				http.StatusInternalServerError,
+				fmt.Sprintf("Error sending request to Judge0: %v", err),
+			)
 			return
 		}
 		defer result.Body.Close()
@@ -102,7 +125,11 @@ func RunCode(w http.ResponseWriter, r *http.Request) {
 		var data submission.Judgeresp
 		if err = json.NewDecoder(result.Body).Decode(&data); err != nil {
 			logger.Errof("Error decoding response from Judge0: %v", err)
-			httphelpers.WriteError(w, http.StatusInternalServerError, fmt.Sprintf("Error decoding response from Judge0: %v", err))
+			httphelpers.WriteError(
+				w,
+				http.StatusInternalServerError,
+				fmt.Sprintf("Error decoding response from Judge0: %v", err),
+			)
 			return
 		}
 
@@ -122,6 +149,10 @@ func RunCode(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		logger.Errof("Error encoding response: %v", err)
-		httphelpers.WriteError(w, http.StatusInternalServerError, fmt.Sprintf("Error encoding response: %v", err))
+		httphelpers.WriteError(
+			w,
+			http.StatusInternalServerError,
+			fmt.Sprintf("Error encoding response: %v", err),
+		)
 	}
 }

@@ -6,7 +6,6 @@ import (
 )
 
 func PasswordGenerator(passwordLength int) string {
-	lowerCase := "abcdefghijklmnopqrstuvwxyz"
 	upperCase := "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	numbers := "0123456789"
 	specialChar := "!@#$%^&*()_-+={}[/?]"
@@ -21,8 +20,8 @@ func PasswordGenerator(passwordLength int) string {
 
 		switch randNum {
 		case 0:
-			randCharNum := rng.Intn(len(lowerCase))
-			password += string(lowerCase[randCharNum])
+			randCharNum := rng.Intn(len(upperCase))
+			password += string(upperCase[randCharNum])
 		case 1:
 			randCharNum := rng.Intn(len(upperCase))
 			password += string(upperCase[randCharNum])

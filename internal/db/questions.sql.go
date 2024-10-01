@@ -9,24 +9,26 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createQuestion = `-- name: CreateQuestion :one
-INSERT INTO questions (id, description, title, "input_format", points, round, constraints, output_format)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-RETURNING id, description, title, input_format, points, round, constraints, output_format
+INSERT INTO questions (id, description, title, "input_format", points, round, constraints, output_format, sample_test_input, sample_test_output, explanation)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+RETURNING id, description, title, input_format, points, round, constraints, output_format, sample_test_input, sample_test_output, explanation
 `
 
 type CreateQuestionParams struct {
-	ID           uuid.UUID
-	Description  *string
-	Title        *string
-	InputFormat  *string
-	Points       pgtype.Int4
-	Round        int32
-	Constraints  *string
-	OutputFormat *string
+	ID               uuid.UUID
+	Description      string
+	Title            string
+	InputFormat      []string
+	Points           int32
+	Round            int32
+	Constraints      []string
+	OutputFormat     []string
+	SampleTestInput  []string
+	SampleTestOutput []string
+	Explanation      []string
 }
 
 func (q *Queries) CreateQuestion(ctx context.Context, arg CreateQuestionParams) (Question, error) {
@@ -39,6 +41,9 @@ func (q *Queries) CreateQuestion(ctx context.Context, arg CreateQuestionParams) 
 		arg.Round,
 		arg.Constraints,
 		arg.OutputFormat,
+		arg.SampleTestInput,
+		arg.SampleTestOutput,
+		arg.Explanation,
 	)
 	var i Question
 	err := row.Scan(
@@ -50,6 +55,9 @@ func (q *Queries) CreateQuestion(ctx context.Context, arg CreateQuestionParams) 
 		&i.Round,
 		&i.Constraints,
 		&i.OutputFormat,
+		&i.SampleTestInput,
+		&i.SampleTestOutput,
+		&i.Explanation,
 	)
 	return i, err
 }
@@ -65,7 +73,7 @@ func (q *Queries) DeleteQuestion(ctx context.Context, id uuid.UUID) error {
 }
 
 const getQuestion = `-- name: GetQuestion :one
-SELECT id, description, title, input_format, points, round, constraints, output_format FROM questions
+SELECT id, description, title, input_format, points, round, constraints, output_format, sample_test_input, sample_test_output, explanation FROM questions
 WHERE id = $1 LIMIT 1
 `
 
@@ -81,12 +89,15 @@ func (q *Queries) GetQuestion(ctx context.Context, id uuid.UUID) (Question, erro
 		&i.Round,
 		&i.Constraints,
 		&i.OutputFormat,
+		&i.SampleTestInput,
+		&i.SampleTestOutput,
+		&i.Explanation,
 	)
 	return i, err
 }
 
 const getQuestionByRound = `-- name: GetQuestionByRound :many
-SELECT id, description, title, input_format, points, round, constraints, output_format FROM questions
+SELECT id, description, title, input_format, points, round, constraints, output_format, sample_test_input, sample_test_output, explanation FROM questions
 WHERE round = $1
 `
 
@@ -108,6 +119,9 @@ func (q *Queries) GetQuestionByRound(ctx context.Context, round int32) ([]Questi
 			&i.Round,
 			&i.Constraints,
 			&i.OutputFormat,
+			&i.SampleTestInput,
+			&i.SampleTestOutput,
+			&i.Explanation,
 		); err != nil {
 			return nil, err
 		}
@@ -120,8 +134,7 @@ func (q *Queries) GetQuestionByRound(ctx context.Context, round int32) ([]Questi
 }
 
 const getQuestions = `-- name: GetQuestions :many
-SELECT id, description, title, input_format, points, round, constraints, output_format
-FROM questions
+SELECT id, description, title, input_format, points, round, constraints, output_format, sample_test_input, sample_test_output, explanation FROM questions
 `
 
 func (q *Queries) GetQuestions(ctx context.Context) ([]Question, error) {
@@ -142,6 +155,9 @@ func (q *Queries) GetQuestions(ctx context.Context) ([]Question, error) {
 			&i.Round,
 			&i.Constraints,
 			&i.OutputFormat,
+			&i.SampleTestInput,
+			&i.SampleTestOutput,
+			&i.Explanation,
 		); err != nil {
 			return nil, err
 		}
@@ -155,19 +171,22 @@ func (q *Queries) GetQuestions(ctx context.Context) ([]Question, error) {
 
 const updateQuestion = `-- name: UpdateQuestion :exec
 UPDATE questions
-SET description = $1, title = $2, input_format = $3, points = $4, round = $5, constraints = $6, output_format = $7
-WHERE id = $8
+SET description = $1, title = $2, input_format = $3, points = $4, round = $5, constraints = $6, output_format = $7, sample_test_input = $8, sample_test_output = $9, explanation = $10
+WHERE id = $11
 `
 
 type UpdateQuestionParams struct {
-	Description  *string
-	Title        *string
-	InputFormat  *string
-	Points       pgtype.Int4
-	Round        int32
-	Constraints  *string
-	OutputFormat *string
-	ID           uuid.UUID
+	Description      string
+	Title            string
+	InputFormat      []string
+	Points           int32
+	Round            int32
+	Constraints      []string
+	OutputFormat     []string
+	SampleTestInput  []string
+	SampleTestOutput []string
+	Explanation      []string
+	ID               uuid.UUID
 }
 
 func (q *Queries) UpdateQuestion(ctx context.Context, arg UpdateQuestionParams) error {
@@ -179,6 +198,9 @@ func (q *Queries) UpdateQuestion(ctx context.Context, arg UpdateQuestionParams) 
 		arg.Round,
 		arg.Constraints,
 		arg.OutputFormat,
+		arg.SampleTestInput,
+		arg.SampleTestOutput,
+		arg.Explanation,
 		arg.ID,
 	)
 	return err

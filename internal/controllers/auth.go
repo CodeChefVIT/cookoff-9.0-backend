@@ -2,8 +2,11 @@ package controllers
 
 import (
 	"errors"
+	"fmt"
+	"math/big"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/CodeChefVIT/cookoff-backend/internal/db"
 	"github.com/CodeChefVIT/cookoff-backend/internal/helpers/auth"
@@ -67,7 +70,13 @@ func SignUp(w http.ResponseWriter, r *http.Request) {
 		Password:       string(hashed),
 		Role:           "user",
 		RoundQualified: 0,
-		Score:          pgtype.Int4{},
+		Score: pgtype.Numeric{
+			Int:              big.NewInt(0),
+			Exp:              0,
+			NaN:              false,
+			InfinityModifier: 0,
+			Valid:            true,
+		},
 		Name:           payload.Name,
 	})
 	if err != nil {
@@ -108,6 +117,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		httphelpers.WriteError(w, http.StatusInternalServerError, err.Error())
+		return
 	}
 
 	accessToken, err := auth.GenerateJWT(&user, false)
@@ -119,6 +129,14 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	refreshToken, err := auth.GenerateJWT(&user, true)
 	if err != nil {
 		httphelpers.WriteError(w, http.StatusInternalServerError, "failed to generate token")
+		return
+	}
+
+	expiration := (time.Hour + 25*time.Minute)
+	err = database.RedisClient.Set(r.Context(), user.ID.String(), refreshToken, expiration).Err()
+	if err != nil {
+		httphelpers.WriteError(w, http.StatusInternalServerError, "failed to set token in cache")
+		logger.Errof(fmt.Sprintf("failed to set token in cache %v", err.Error()))
 		return
 	}
 
@@ -151,5 +169,45 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	httphelpers.WriteJSON(w, http.StatusOK, map[string]any{
 		"message": "Login successful",
 		"data":    data,
+	})
+}
+
+func Logout(w http.ResponseWriter, r *http.Request) {
+	jwt, err := r.Cookie("jwt")
+	if err != nil && !errors.Is(err, http.ErrNoCookie) {
+		httphelpers.WriteError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	refresh, err := r.Cookie("refresh_token")
+	if err != nil && !errors.Is(err, http.ErrNoCookie) {
+		httphelpers.WriteError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if jwt != nil {
+		jwt.MaxAge = -1
+		jwt.Value = ""
+		jwt.Expires = time.Now()
+		jwt.Path = "/"
+		jwt.SameSite = http.SameSiteNoneMode
+		jwt.Secure = true
+		jwt.HttpOnly = true
+		http.SetCookie(w, jwt)
+	}
+
+	if refresh != nil {
+		refresh.MaxAge = -1
+		refresh.Value = ""
+		refresh.Expires = time.Now()
+		refresh.Path = "/"
+		refresh.SameSite = http.SameSiteNoneMode
+		refresh.Secure = true
+		refresh.HttpOnly = true
+		http.SetCookie(w, refresh)
+	}
+
+	httphelpers.WriteJSON(w, http.StatusOK, map[string]any{
+		"message": "logged out successfully",
 	})
 }

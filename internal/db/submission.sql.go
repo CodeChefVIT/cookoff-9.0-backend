@@ -13,8 +13,8 @@ import (
 )
 
 const createSubmission = `-- name: CreateSubmission :exec
-INSERT INTO submissions (id, user_id, question_id, language_id)
-VALUES ($1, $2, $3, $4)
+INSERT INTO submissions (id, user_id, question_id, language_id, source_code)
+VALUES ($1, $2, $3, $4, $5)
 `
 
 type CreateSubmissionParams struct {
@@ -22,6 +22,7 @@ type CreateSubmissionParams struct {
 	UserID     uuid.NullUUID
 	QuestionID uuid.UUID
 	LanguageID int32
+	SourceCode string
 }
 
 func (q *Queries) CreateSubmission(ctx context.Context, arg CreateSubmissionParams) error {
@@ -30,6 +31,7 @@ func (q *Queries) CreateSubmission(ctx context.Context, arg CreateSubmissionPara
 		arg.UserID,
 		arg.QuestionID,
 		arg.LanguageID,
+		arg.SourceCode,
 	)
 	return err
 }
@@ -56,29 +58,196 @@ func (q *Queries) GetSubmission(ctx context.Context, id uuid.UUID) (GetSubmissio
 	return i, err
 }
 
-const getSubmissionsWithRoundByUserId = `-- name: GetSubmissionsWithRoundByUserId :many
-SELECT q.round, q.title, q.description, s.id, s.question_id, s.testcases_passed, s.testcases_failed, s.runtime, s.submission_time, s.testcase_id, s.language_id, s.description, s.memory, s.user_id, s.status
-FROM submissions s
-INNER JOIN questions q ON s.question_id = q.id
-WHERE s.user_id = $1
+const getSubmissionByID = `-- name: GetSubmissionByID :one
+SELECT
+    id,
+    question_id,
+    testcases_passed,
+    testcases_failed,
+    runtime,
+    memory,
+    submission_time,
+    description,
+    user_id
+FROM submissions
+WHERE id = $1
 `
 
-type GetSubmissionsWithRoundByUserIdRow struct {
-	Round           int32
-	Title           *string
-	Description     *string
+type GetSubmissionByIDRow struct {
 	ID              uuid.UUID
 	QuestionID      uuid.UUID
 	TestcasesPassed pgtype.Int4
 	TestcasesFailed pgtype.Int4
 	Runtime         pgtype.Numeric
+	Memory          pgtype.Numeric
 	SubmissionTime  pgtype.Timestamp
-	TestcaseID      uuid.NullUUID
-	LanguageID      int32
-	Description_2   *string
-	Memory          pgtype.Int4
+	Description     *string
 	UserID          uuid.NullUUID
-	Status          *string
+}
+
+func (q *Queries) GetSubmissionByID(ctx context.Context, id uuid.UUID) (GetSubmissionByIDRow, error) {
+	row := q.db.QueryRow(ctx, getSubmissionByID, id)
+	var i GetSubmissionByIDRow
+	err := row.Scan(
+		&i.ID,
+		&i.QuestionID,
+		&i.TestcasesPassed,
+		&i.TestcasesFailed,
+		&i.Runtime,
+		&i.Memory,
+		&i.SubmissionTime,
+		&i.Description,
+		&i.UserID,
+	)
+	return i, err
+}
+
+const getSubmissionByUser = `-- name: GetSubmissionByUser :many
+SELECT id, question_id, testcases_passed, testcases_failed, runtime, submission_time, source_code, language_id, description, memory, user_id, status FROM submissions WHERE user_id = $1
+`
+
+func (q *Queries) GetSubmissionByUser(ctx context.Context, userID uuid.NullUUID) ([]Submission, error) {
+	rows, err := q.db.Query(ctx, getSubmissionByUser, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Submission
+	for rows.Next() {
+		var i Submission
+		if err := rows.Scan(
+			&i.ID,
+			&i.QuestionID,
+			&i.TestcasesPassed,
+			&i.TestcasesFailed,
+			&i.Runtime,
+			&i.SubmissionTime,
+			&i.SourceCode,
+			&i.LanguageID,
+			&i.Description,
+			&i.Memory,
+			&i.UserID,
+			&i.Status,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getSubmissionResultsBySubmissionID = `-- name: GetSubmissionResultsBySubmissionID :many
+SELECT 
+    id,
+    testcase_id,
+    submission_id,
+    runtime,
+    memory,
+    status,
+    description
+FROM 
+    submission_results
+WHERE 
+    submission_id = $1
+`
+
+func (q *Queries) GetSubmissionResultsBySubmissionID(ctx context.Context, submissionID uuid.UUID) ([]SubmissionResult, error) {
+	rows, err := q.db.Query(ctx, getSubmissionResultsBySubmissionID, submissionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []SubmissionResult
+	for rows.Next() {
+		var i SubmissionResult
+		if err := rows.Scan(
+			&i.ID,
+			&i.TestcaseID,
+			&i.SubmissionID,
+			&i.Runtime,
+			&i.Memory,
+			&i.Status,
+			&i.Description,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getSubmissionStatusByID = `-- name: GetSubmissionStatusByID :one
+SELECT
+    status
+FROM submissions
+WHERE id = $1
+`
+
+func (q *Queries) GetSubmissionStatusByID(ctx context.Context, id uuid.UUID) (*string, error) {
+	row := q.db.QueryRow(ctx, getSubmissionStatusByID, id)
+	var status *string
+	err := row.Scan(&status)
+	return status, err
+}
+
+const getSubmissionsWithRoundByUserId = `-- name: GetSubmissionsWithRoundByUserId :many
+WITH RankedSubmissions AS (
+  SELECT 
+    s.id, s.question_id, s.testcases_passed, s.testcases_failed, s.runtime, s.submission_time, s.source_code, s.language_id, s.description, s.memory, s.user_id, s.status,
+    q.round,
+    q.title,
+    q.description AS question_description,
+    ROW_NUMBER() OVER (
+      PARTITION BY s.question_id 
+      ORDER BY s.testcases_passed DESC, s.testcases_failed ASC, s.runtime ASC
+    ) AS rank
+  FROM submissions s
+  INNER JOIN questions q ON s.question_id = q.id
+  WHERE s.user_id = $1 and s.status = 'DONE'
+)
+SELECT 
+  rs.id,
+  rs.question_id,
+  rs.user_id,
+  rs.testcases_passed,
+  rs.testcases_failed,
+  rs.runtime,
+  rs.submission_time,
+  rs.language_id,
+  rs.description AS submission_description,
+  rs.memory,
+  rs.status,
+  q.round,
+  q.title,
+  q.description AS question_description,
+  q.points
+FROM RankedSubmissions rs
+INNER JOIN questions q ON rs.question_id = q.id
+WHERE rs.rank = 1
+`
+
+type GetSubmissionsWithRoundByUserIdRow struct {
+	ID                    uuid.UUID
+	QuestionID            uuid.UUID
+	UserID                uuid.NullUUID
+	TestcasesPassed       pgtype.Int4
+	TestcasesFailed       pgtype.Int4
+	Runtime               pgtype.Numeric
+	SubmissionTime        pgtype.Timestamp
+	LanguageID            int32
+	SubmissionDescription *string
+	Memory                pgtype.Numeric
+	Status                *string
+	Round                 int32
+	Title                 string
+	QuestionDescription   string
+	Points                int32
 }
 
 func (q *Queries) GetSubmissionsWithRoundByUserId(ctx context.Context, userID uuid.NullUUID) ([]GetSubmissionsWithRoundByUserIdRow, error) {
@@ -91,21 +260,21 @@ func (q *Queries) GetSubmissionsWithRoundByUserId(ctx context.Context, userID uu
 	for rows.Next() {
 		var i GetSubmissionsWithRoundByUserIdRow
 		if err := rows.Scan(
-			&i.Round,
-			&i.Title,
-			&i.Description,
 			&i.ID,
 			&i.QuestionID,
+			&i.UserID,
 			&i.TestcasesPassed,
 			&i.TestcasesFailed,
 			&i.Runtime,
 			&i.SubmissionTime,
-			&i.TestcaseID,
 			&i.LanguageID,
-			&i.Description_2,
+			&i.SubmissionDescription,
 			&i.Memory,
-			&i.UserID,
 			&i.Status,
+			&i.Round,
+			&i.Title,
+			&i.QuestionDescription,
+			&i.Points,
 		); err != nil {
 			return nil, err
 		}
@@ -157,27 +326,91 @@ func (q *Queries) GetTestCases(ctx context.Context, arg GetTestCasesParams) ([]T
 	return items, nil
 }
 
+const updateDescriptionStatus = `-- name: UpdateDescriptionStatus :exec
+UPDATE submissions
+SET description = $1
+WHERE id = $2
+`
+
+type UpdateDescriptionStatusParams struct {
+	Description *string
+	ID          uuid.UUID
+}
+
+func (q *Queries) UpdateDescriptionStatus(ctx context.Context, arg UpdateDescriptionStatusParams) error {
+	_, err := q.db.Exec(ctx, updateDescriptionStatus, arg.Description, arg.ID)
+	return err
+}
+
+const updateScore = `-- name: UpdateScore :exec
+WITH best_submissions AS (
+    SELECT 
+        s.user_id AS user_id,
+        s.question_id,
+        MAX((s.testcases_passed) * q.points / (s.testcases_passed + s.testcases_failed)::numeric) AS best_score
+    FROM submissions s
+    INNER JOIN questions q ON s.question_id = q.id
+    INNER JOIN users u on s.user_id = u.id 
+    WHERE s.user_id = (select user_id from submissions where id = $1) AND q.round = u.round_qualified
+    GROUP BY s.user_id, s.question_id
+)
+UPDATE users
+SET score = (
+    SELECT SUM(best_score)
+    FROM best_submissions
+)
+WHERE users.id = (select user_id from submissions s where s.id = $1)
+`
+
+func (q *Queries) UpdateScore(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, updateScore, id)
+	return err
+}
+
 const updateSubmission = `-- name: UpdateSubmission :exec
 UPDATE submissions
-SET testcases_passed = $1, testcases_failed = $2, runtime = $3, memory = $4
-WHERE id = $5
+SET 
+    runtime = $1, 
+    memory = $2, 
+    status = $3,
+    testcases_passed = $4,
+    testcases_failed = $5
+WHERE id = $6
 `
 
 type UpdateSubmissionParams struct {
+	Runtime         pgtype.Numeric
+	Memory          pgtype.Numeric
+	Status          *string
 	TestcasesPassed pgtype.Int4
 	TestcasesFailed pgtype.Int4
-	Runtime         pgtype.Numeric
-	Memory          pgtype.Int4
 	ID              uuid.UUID
 }
 
 func (q *Queries) UpdateSubmission(ctx context.Context, arg UpdateSubmissionParams) error {
 	_, err := q.db.Exec(ctx, updateSubmission,
-		arg.TestcasesPassed,
-		arg.TestcasesFailed,
 		arg.Runtime,
 		arg.Memory,
+		arg.Status,
+		arg.TestcasesPassed,
+		arg.TestcasesFailed,
 		arg.ID,
 	)
+	return err
+}
+
+const updateSubmissionStatus = `-- name: UpdateSubmissionStatus :exec
+UPDATE submissions
+SET status = $1
+WHERE id = $2
+`
+
+type UpdateSubmissionStatusParams struct {
+	Status *string
+	ID     uuid.UUID
+}
+
+func (q *Queries) UpdateSubmissionStatus(ctx context.Context, arg UpdateSubmissionStatusParams) error {
+	_, err := q.db.Exec(ctx, updateSubmissionStatus, arg.Status, arg.ID)
 	return err
 }

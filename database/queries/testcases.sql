@@ -54,3 +54,7 @@ SELECT
     runtime
 FROM testcases
 WHERE question_id = $1;
+
+-- name: GetPublicTestCasesByQuestion :many
+SELECT * FROM testcases
+WHERE question_id = $1 AND hidden = false;

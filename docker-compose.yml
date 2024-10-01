@@ -30,10 +30,11 @@ services:
     image: nginx:latest
     ports:
       - "80:80" # Replace 8080 with the desired port for your application
+      - "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf # Mount your Nginx configuration file
     depends_on:
-      - api # Nginx depends on the API service being available nginx:
+      - api # Nginx depends on the API service being available
 
 
 volumes:

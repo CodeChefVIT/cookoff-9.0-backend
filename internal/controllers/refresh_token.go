@@ -2,9 +2,11 @@ package controllers
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
+	"time"
 
-	helpers "github.com/CodeChefVIT/cookoff-backend/internal/helpers/auth"
+	"github.com/CodeChefVIT/cookoff-backend/internal/helpers/auth"
 	"github.com/CodeChefVIT/cookoff-backend/internal/helpers/database"
 	httphelpers "github.com/CodeChefVIT/cookoff-backend/internal/helpers/http"
 	logger "github.com/CodeChefVIT/cookoff-backend/internal/helpers/logging"
@@ -21,7 +23,7 @@ func RefreshTokenHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	claims, err := jwtauth.VerifyToken(helpers.TokenAuth, cookie.Value)
+	claims, err := jwtauth.VerifyToken(auth.TokenAuth, cookie.Value)
 	if err != nil || claims == nil {
 		logger.Errof("Invalid refresh token: %v", err)
 		httphelpers.WriteError(w, http.StatusUnauthorized, "invalid refresh token: "+err.Error())
@@ -32,6 +34,17 @@ func RefreshTokenHandler(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		logger.Errof("Invalid token claims, user_id not found")
 		httphelpers.WriteError(w, http.StatusUnauthorized, "invalid token claims")
+		return
+	}
+
+	check, err := auth.CheckRefreshToken(r.Context(), userId, cookie.Value)
+	if err != nil {
+		httphelpers.WriteError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	if !check {
+		httphelpers.WriteError(w, http.StatusUnauthorized, "Token does not match with cache token")
 		return
 	}
 
@@ -52,12 +65,11 @@ func RefreshTokenHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	accessToken, err := helpers.GenerateJWT(&user, false)
+	accessToken, err := auth.GenerateJWT(&user, false)
 	if err != nil {
 		httphelpers.WriteError(w, http.StatusInternalServerError, "failed to generate token")
 		return
 	}
-
 	http.SetCookie(w, &http.Cookie{
 		Name:     "jwt",
 		Value:    accessToken,
@@ -68,12 +80,11 @@ func RefreshTokenHandler(w http.ResponseWriter, r *http.Request) {
 		SameSite: http.SameSiteNoneMode,
 	})
 
-	refreshToken, err := helpers.GenerateJWT(&user, true)
+	refreshToken, err := auth.GenerateJWT(&user, true)
 	if err != nil {
 		httphelpers.WriteError(w, http.StatusInternalServerError, "failed to generate token")
 		return
 	}
-
 	http.SetCookie(w, &http.Cookie{
 		Name:     "refresh_token",
 		Value:    refreshToken,
@@ -83,6 +94,14 @@ func RefreshTokenHandler(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 		SameSite: http.SameSiteNoneMode,
 	})
+
+	expiration := (time.Hour + 25*time.Minute)
+	err = database.RedisClient.Set(r.Context(), user.ID.String(), refreshToken, expiration).Err()
+	if err != nil {
+		httphelpers.WriteError(w, http.StatusInternalServerError, "failed to set token in cache")
+		logger.Errof(fmt.Sprintf("failed to set token in cache %v", err.Error()))
+		return
+	}
 
 	httphelpers.WriteJSON(w, http.StatusOK, map[string]string{
 		"message": "Token refreshed",

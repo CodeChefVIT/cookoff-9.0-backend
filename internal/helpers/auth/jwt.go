@@ -23,7 +23,7 @@ func GenerateJWT(user *db.User, isRefresh bool) (string, error) {
 	var expirationTime time.Time
 
 	if !isRefresh {
-		expirationTime = time.Now().Add(time.Hour / 4)
+		expirationTime = time.Now().Add(time.Minute * 1)
 		_, tokenString, err := TokenAuth.Encode(map[string]interface{}{
 			"username": user.Name,
 			"user_id":  user.ID,
