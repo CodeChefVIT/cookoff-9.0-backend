@@ -5,26 +5,26 @@
 
 <h3 align="center"> Powered By </h2>
 <div align="center">
-	<table>
-  <tr>
-    <td>
-      <div style="border: 1px solid #ccc; padding: 10px; text-align: center; border-radius: 8px; width: 200px;">
-        <a href="https://discord.com/invite/GRc3v6n" target="_blank">
-          <img src="https://avatars.githubusercontent.com/u/25365178?s=200&v=4" alt="Judge0" style="width:100%; border-radius: 8px;">
-          <p>Judge0</p>
-        </a>
-      </div>
-    </td>
-    <td>
-      <div style="border: 1px solid #ccc; padding: 10px; text-align: center; border-radius: 8px; width: 200px;">
-        <a href="https://discord.com/invite/dCq3XhgRXs" target="_blank">
-          <img src="https://pbs.twimg.com/profile_images/1742205229104259072/2ISO3o7-_400x400.jpg" alt="Sulu" style="width:100%; border-radius: 8px;">
-          <p>Sulu</p>
-        </a>
-      </div>
-    </td>
-  </tr>
-</table>
+  <table>
+    <tr>
+      <td>
+        <div style="border: 1px solid #ccc; padding: 10px; text-align: center; border-radius: 8px; width: 200px;">
+          <a href="https://discord.com/invite/GRc3v6n" target="_blank">
+            <img src="https://avatars.githubusercontent.com/u/25365178?s=200&v=4" alt="Judge0" style="width:150px; height:150px; border-radius: 8px;">
+            <p>Judge0</p>
+          </a>
+        </div>
+      </td>
+      <td>
+        <div style="border: 1px solid #ccc; padding: 10px; text-align: center; border-radius: 8px; width: 200px;">
+          <a href="https://discord.com/invite/dCq3XhgRXs" target="_blank">
+            <img src="https://pbs.twimg.com/profile_images/1742205229104259072/2ISO3o7-_400x400.jpg" alt="Sulu" style="width:150px; height:150px; border-radius: 8px;">
+            <p>Sulu</p>
+          </a>
+        </div>
+      </td>
+    </tr>
+  </table>
 </div>
 
 > This is the backend for the cookoff coding portal for the 9th edition of cookoff
@@ -54,6 +54,7 @@ $ cd cookoff-9.0-backend
 ```
 
 #### Pre-requisites
+
 1. Setup atlas
 2. Configure env (refer .env.example)
 3. Configure Makefile
