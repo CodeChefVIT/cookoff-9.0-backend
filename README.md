@@ -184,6 +184,7 @@ $ make apply-schema
 	</p>
 </td>
 
+</tr>
 <td>
 	<p align="center">
 		<img src = "https://avatars.githubusercontent.com/u/155614230?v=4" width="200" height="200" alt="profilepic" style="border: 2px solid grey; width: 170px; height:170px">
@@ -222,6 +223,7 @@ $ make apply-schema
 		</a>
 	</p>
 </td>
+<tr>
 
 </tr>
 </table>
