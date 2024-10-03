@@ -28,41 +28,45 @@
 </div>
 <br/>
 
-> This is the backend for the cookoff coding portal for the 9th edition of cookoff. (first working portal :skull:)
+> CookOff is CodeChef VIT’s flagship competitive coding event that tests the coding skills of developers. This is the backend that powers both the admin and participant portals for CookOff 9.0, serving as the backbone to manage users, questions, test cases, and submissions. Designed for efficiency and scalability, our robust backend simplifies the process of overseeing all competition-related tasks, ensuring smooth operations for both administrators and participants alike. With a focus on user-friendliness, it provides all the necessary tools to facilitate a seamless competitive experience.
 
 ---
 
-[![DOCS](https://img.shields.io/badge/Documentation-see%20docs-green?style=flat-square&logo=appveyor)](INSERT_LINK_FOR_DOCS_HERE)
+[![DOCS](https://img.shields.io/badge/Documentation-see%20docs-green?style=flat-square&logo=appveyor)](https://documenter.getpostman.com/view/26244894/2sAXqtbgvt)
 [![UI](https://img.shields.io/badge/User%20Interface-Link%20to%20UI-orange?style=flat-square&logo=appveyor)](INSERT_UI_LINK_HERE)
 
 ## Features
 
 ### User
-- Sign Up (```/user/signup```)
-- Login (```/user/login```)
+
+- Sign Up (`/user/signup`)
+- Login (`/user/login`)
 
 ### Questions
-- Create Question (```/question/create```)
-- Get all Questions (```/questions```)
-- Get a Question (```/question/{question_id}```)
-- Get Question by Round (```/question/round```)
-- Update Question (```/question```)
-- Delete Question (```/question/{question_id}```)
+
+- Create Question (`/question/create`)
+- Get all Questions (`/questions`)
+- Get a Question (`/question/{question_id}`)
+- Get Question by Round (`/question/round`)
+- Update Question (`/question`)
+- Delete Question (`/question/{question_id}`)
 
 ### Testcases
-- Create Testcase (```/testcase```)
-- Get Testcases by Question (```/questions/{question_id}/testcases```)
-- Get a Testcase (```/testcase/{testcase_id}```)
-- Update Testcase (```/testcase/{testcase_id}```)
-- Delete Testcase (```/testcase/{testcase_id}```)
+
+- Create Testcase (`/testcase`)
+- Get Testcases by Question (`/questions/{question_id}/testcases`)
+- Get a Testcase (`/testcase/{testcase_id}`)
+- Update Testcase (`/testcase/{testcase_id}`)
+- Delete Testcase (`/testcase/{testcase_id}`)
 
 ### Submissions
-- Submit Testcase (```/submit```)
-- Run Testcase (```/runcode```)
+
+- Submit Testcase (`/submit`)
+- Run Testcase (`/runcode`)
 
 ### Leaderboard
-- Get Leaderboard (```/leaderboard```)
- 
+
+- Get Leaderboard (`/leaderboard`)
 
 ## Dependencies
 
@@ -88,21 +92,25 @@ $ cd cookoff-9.0-backend
 #### Directions to Run
 
 1. Spin up containers
+
 ```sh
 $ docker compose up --build -d
 ```
 
 2. Install sqlc
+
 ```sh
 $ go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
 ```
 
 3. Generate sqlc schema and queries
+
 ```sh
 $ make generate
 ```
 
 4. Apply migrations
+
 ```sh
 $ make apply-schema
 ```
