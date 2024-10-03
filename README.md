@@ -26,6 +26,7 @@
     </tr>
   </table>
 </div>
+<br/>
 
 > This is the backend for the cookoff coding portal for the 9th edition of cookoff. (first working portal :skull:)
 
@@ -36,7 +37,32 @@
 
 ## Features
 
-- Insert list of features here
+### User
+- Sign Up (```/user/signup```)
+- Login (```/user/login```)
+
+### Questions
+- Create Question (```/question/create```)
+- Get all Questions (```/questions```)
+- Get a Question (```/question/{question_id}```)
+- Get Question by Round (```/question/round```)
+- Update Question (```/question```)
+- Delete Question (```/question/{question_id}```)
+
+### Testcases
+- Create Testcase (```/testcase```)
+- Get Testcases by Question (```/questions/{question_id}/testcases```)
+- Get a Testcase (```/testcase/{testcase_id}```)
+- Update Testcase (```/testcase/{testcase_id}```)
+- Delete Testcase (```/testcase/{testcase_id}```)
+
+### Submissions
+- Submit Testcase (```/submit```)
+- Run Testcase (```/runcode```)
+
+### Leaderboard
+- Get Leaderboard (```/leaderboard```)
+ 
 
 ## Dependencies
 
@@ -53,7 +79,7 @@ $ git clone https://github.com/CodeChefVIT/cookoff-9.0-backend.git
 $ cd cookoff-9.0-backend
 ```
 
-#### Pre-requisites
+#### Prerequisites
 
 1. Setup atlas
 2. Configure env (refer .env.example)
@@ -63,6 +89,14 @@ $ cd cookoff-9.0-backend
 
 ```sh
 $ docker compose up --build -d
+```
+
+```sh
+$ go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
+```
+
+```sh
+$ make generate
 ```
 
 ```sh
