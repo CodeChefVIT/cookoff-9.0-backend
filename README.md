@@ -28,68 +28,70 @@
 </div>
 <br/>
 
+---
+
 > CookOff is CodeChef VIT’s flagship competitive coding event that tests the coding skills of developers. This is the backend that powers both the admin and participant portals for CookOff 9.0, serving as the backbone to manage users, questions, test cases, and submissions. Designed for efficiency and scalability, our robust backend simplifies the process of overseeing all competition-related tasks, ensuring smooth operations for both administrators and participants alike. With a focus on user-friendliness, it provides all the necessary tools to facilitate a seamless competitive experience.
 
 ---
 
 [![DOCS](https://img.shields.io/badge/Documentation-see%20docs-green?style=flat-square&logo=appveyor)](https://documenter.getpostman.com/view/26244894/2sAXqtbgvt)
-[![UI](https://img.shields.io/badge/User%20Interface-Link%20to%20UI-orange?style=flat-square&logo=appveyor)](INSERT_UI_LINK_HERE)
+[![UI](https://img.shields.io/badge/User%20Interface-Link%20to%20UI-orange?style=flat-square&logo=appveyor)](https://cookoff24.codechefvit.com/)
 
-## Features
+## ⚙️ Tech Stack:
 
-### User
+- [Go](https://go.dev/)
+- [Docker](https://www.docker.com/)
+- [PostgreSQL](https://www.postgresql.org/)
+- [Redis](https://redis.io/)
+- [Atlas](https://atlasgo.io/)
+- [Make](https://www.gnu.org/software/make/manual/make.html)
+- [SQLC](https://github.com/sqlc-dev/sqlc)
 
-- Sign Up (`/user/signup`)
-- Login (`/user/login`)
+## 🔧 Features
 
-### Questions
+- User Management:
+	- Sign Up (`/user/signup`)
+	- Login (`/user/login`)
 
-- Create Question (`/question/create`)
-- Get all Questions (`/questions`)
-- Get a Question (`/question/{question_id}`)
-- Get Question by Round (`/question/round`)
-- Update Question (`/question`)
-- Delete Question (`/question/{question_id}`)
+- Question Management:
+	- Create Question (`/question/create`)
+	- Get all Questions (`/questions`)
+	- Get a Question (`/question/{question_id}`)
+	- Get Question by Round (`/question/round`)
+	- Update Question (`/question`)
+	- Delete Question (`/question/{question_id}`)
 
-### Testcases
+- Testcase Management:
+	- Create Testcase (`/testcase`)
+	- Get Testcases by Question (`/questions/{question_id}/testcases`)
+	- Get a Testcase (`/testcase/{testcase_id}`)
+	- Update Testcase (`/testcase/{testcase_id}`)
+	- Delete Testcase (`/testcase/{testcase_id}`)
 
-- Create Testcase (`/testcase`)
-- Get Testcases by Question (`/questions/{question_id}/testcases`)
-- Get a Testcase (`/testcase/{testcase_id}`)
-- Update Testcase (`/testcase/{testcase_id}`)
-- Delete Testcase (`/testcase/{testcase_id}`)
+- Submission Management:
+	- Submit Testcase (`/submit`)
+	- Run Testcase (`/runcode`)
 
-### Submissions
+- Leaderboard:
+	- Get Leaderboard (`/leaderboard`)
 
-- Submit Testcase (`/submit`)
-- Run Testcase (`/runcode`)
+## 🏁 Get Started
 
-### Leaderboard
-
-- Get Leaderboard (`/leaderboard`)
-
-## Dependencies
-
-- [atlas](https://atlasgo.io/)
-- [docker](https://docs.docker.com/)
-- [make](https://www.gnu.org/software/make/manual/make.html)
-
-## Instructions
-
-#### Directions to Install
-
+### Directions to Install
+1. Fork the repo
+2. Clone it locally
 ```sh
-$ git clone https://github.com/CodeChefVIT/cookoff-9.0-backend.git
+$ git clone https://github.com/<GITHUB_USERNAME>/cookoff-9.0-backend.git
 $ cd cookoff-9.0-backend
 ```
 
-#### Prerequisites
+### Prerequisites
 
 1. Setup atlas
 2. Configure env (refer .env.example)
 3. Configure Makefile
 
-#### Directions to Run
+### Directions to Run
 
 1. Spin up containers
 
@@ -114,8 +116,12 @@ $ make generate
 ```sh
 $ make apply-schema
 ```
+## 📝 Checkout:
 
-## Contributors
+- Cookoff'24 Admin Portal: [https://github.com/CodeChefVIT/cookoff-9.0-backend](https://github.com/CodeChefVIT/cookoff-admin-9.0)
+- Cookoff'24 Portal: [https://github.com/CodeChefVIT/cookoff-portal-9.0](https://github.com/CodeChefVIT/cookoff-portal-9.0)
+
+## 🚀 Contributors
 
 <table>
 	<tr align="center" style="font-weight:bold">
