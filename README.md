@@ -50,36 +50,42 @@
 ## 🔧 Features
 
 - User Management:
-	- Sign Up (`/user/signup`)
-	- Login (`/user/login`)
+
+  - Sign Up (`/user/signup`)
+  - Login (`/user/login`)
 
 - Question Management:
-	- Create Question (`/question/create`)
-	- Get all Questions (`/questions`)
-	- Get a Question (`/question/{question_id}`)
-	- Get Question by Round (`/question/round`)
-	- Update Question (`/question`)
-	- Delete Question (`/question/{question_id}`)
+
+  - Create Question (`/question/create`)
+  - Get all Questions (`/questions`)
+  - Get a Question (`/question/{question_id}`)
+  - Get Question by Round (`/question/round`)
+  - Update Question (`/question`)
+  - Delete Question (`/question/{question_id}`)
 
 - Testcase Management:
-	- Create Testcase (`/testcase`)
-	- Get Testcases by Question (`/questions/{question_id}/testcases`)
-	- Get a Testcase (`/testcase/{testcase_id}`)
-	- Update Testcase (`/testcase/{testcase_id}`)
-	- Delete Testcase (`/testcase/{testcase_id}`)
+
+  - Create Testcase (`/testcase`)
+  - Get Testcases by Question (`/questions/{question_id}/testcases`)
+  - Get a Testcase (`/testcase/{testcase_id}`)
+  - Update Testcase (`/testcase/{testcase_id}`)
+  - Delete Testcase (`/testcase/{testcase_id}`)
 
 - Submission Management:
-	- Submit Testcase (`/submit`)
-	- Run Testcase (`/runcode`)
+
+  - Submit Testcase (`/submit`)
+  - Run Testcase (`/runcode`)
 
 - Leaderboard:
-	- Get Leaderboard (`/leaderboard`)
+  - Get Leaderboard (`/leaderboard`)
 
 ## 🏁 Get Started
 
 ### Directions to Install
+
 1. Fork the repo
 2. Clone it locally
+
 ```sh
 $ git clone https://github.com/<GITHUB_USERNAME>/cookoff-9.0-backend.git
 $ cd cookoff-9.0-backend
@@ -116,6 +122,7 @@ $ make generate
 ```sh
 $ make apply-schema
 ```
+
 ## 📝 Checkout:
 
 - Cookoff'24 Admin Portal: [https://github.com/CodeChefVIT/cookoff-admin-9.0](https://github.com/CodeChefVIT/cookoff-admin-9.0)
@@ -124,88 +131,99 @@ $ make apply-schema
 ## 🚀 Contributors
 
 <table>
-	<tr align="center" style="font-weight:bold">
-		<td>
-		Vedant Matanhelia
-		<p align="center">
-			<img src = "https://avatars.githubusercontent.com/u/71623796?v=4" width="150" height="150" alt="Vedant Matanhelia">
-		</p>
-			<p align="center">
-				<a href = "https://github.com/Xenomorph07">
-					<img src = "https://cdn-icons-png.flaticon.com/512/2111/2111432.png" width="36" height = "36" alt="GitHub"/>
-				</a>
-			</p>
-		</td>
-		<td>
-		Vaibhav Sijaria
-		<p align="center">
-			<img src = "https://avatars.githubusercontent.com/u/139199971?v=4" width="150" height="150" alt="Vaibhav Sijaria">
-		</p>
-			<p align="center">
-				<a href = "https://github.com/vaibhavsijaria">
-					<img src = "https://cdn-icons-png.flaticon.com/512/2111/2111432.png" width="36" height = "36" alt="GitHub"/>
-				</a>
-			</p>
-		</td>
-		<td>
-		Aman L
-		<p align="center">
-			<img src = "https://avatars.githubusercontent.com/u/86644389?v=4" width="150" height="150" alt="Aman L">
-		</p>
-			<p align="center">
-				<a href = "https://github.com/Killerrekt">
-					<img src = "https://cdn-icons-png.flaticon.com/512/2111/2111432.png" width="36" height = "36" alt="GitHub"/>
-				</a>
-			</p>
-		</td>
-		<td>
-		Jothish Kamal
-		<p align="center">
-			<img src = "https://avatars.githubusercontent.com/u/74227363?v=4" width="150" height="150" alt="Jothish Kamal">
-		</p>
-			<p align="center">
-				<a href = "https://github.com/JothishKamal">
-					<img src = "https://cdn-icons-png.flaticon.com/512/2111/2111432.png" width="36" height = "36" alt="GitHub"/>
-				</a>
-			</p>
-		</td>
-	</tr>
-	<tr>
-		<td>
-		Soham Mahapatra
-		<p align="center">
-			<img src = "https://avatars.githubusercontent.com/u/155614230?v=4" width="150" height="150" alt="Soham Mahapatra">
-		</p>
-			<p align="center">
-				<a href = "https://github.com/Soham-Maha">
-					<img src = "https://cdn-icons-png.flaticon.com/512/2111/2111432.png" width="36" height = "36" alt="GitHub"/>
-				</a>
-			</p>
-		</td>
-		<td>
-		Abhinav Anand
-		<p align="center">
-			<img src = "https://avatars.githubusercontent.com/u/140488187?v=4" width="150" height="150" alt="Abhinav Anand">
-		</p>
-			<p align="center">
-				<a href = "https://github.com/Abhinav-055">
-					<img src = "https://cdn-icons-png.flaticon.com/512/2111/2111432.png" width="36" height = "36" alt="GitHub"/>
-				</a>
-			</p>
-		</td>
-		<td>
-		Aman Singh
-		<p align="center">
-			<img src = "https://avatars.githubusercontent.com/u/80804989?v=4" width="150" height="150" alt="Abhinav Anand">
-		</p>
-			<p align="center">
-				<a href = "https://github.com/DevloperAmanSingh">
-					<img src = "https://cdn-icons-png.flaticon.com/512/2111/2111432.png" width="36" height = "36" alt="GitHub"/>
-				</a>
-			</p>
-		</td>
-	</tr>
-	
+<tr align="center">
+<td>
+	<p align="center">
+		<img src = "https://avatars.githubusercontent.com/u/71623796?v=4" width="200" height="200" alt="profilepic" style="border: 2px solid grey; width: 170px; height:170px">
+	</p>
+	<p style="font-size:17px; font-weight:600;">Vedant Matanhelia</p>
+	<p align="center">
+		<a href = "https://github.com/Xenomorph07"><img src = "http://www.iconninja.com/files/241/825/211/round-collaboration-social-github-code-circle-network-icon.svg" width="36" height = "36" alt="GitHub"/></a>
+		<a href = "https://www.linkedin.com/in/vedant-matanhelia-aa171027b/">
+			<img src = "http://www.iconninja.com/files/863/607/751/network-linkedin-social-connection-circular-circle-media-icon.svg" width="36" height="36" alt="LinkedIn"/>
+		</a>
+	</p>
+</td>
+
+<td>
+	<p align="center">
+		<img src = "https://avatars.githubusercontent.com/u/139199971?v=4" width="200" height="200" alt="profilepic" style="border: 2px solid grey; width: 170px; height:170px">
+	</p>
+	<p style="font-size:17px; font-weight:600;">Vaibhav Sijaria</p>
+	<p align="center">
+		<a href = "https://github.com/vaibhavsijaria"><img src = "http://www.iconninja.com/files/241/825/211/round-collaboration-social-github-code-circle-network-icon.svg" width="36" height = "36" alt="GitHub"/></a>
+		<a href = "https://www.linkedin.com/in/vaibhav-sijaria/">
+			<img src = "http://www.iconninja.com/files/863/607/751/network-linkedin-social-connection-circular-circle-media-icon.svg" width="36" height="36" alt="LinkedIn"/>
+		</a>
+	</p>
+</td>
+
+<td>
+	<p align="center">
+		<img src = "https://avatars.githubusercontent.com/u/86644389?v=4" width="200" height="200" alt="profilepic" style="border: 2px solid grey; width: 170px; height:170px">
+	</p>
+	<p style="font-size:17px; font-weight:600;">Aman L</p>
+	<p align="center">
+		<a href = "https://github.com/Killerrekt"><img src = "http://www.iconninja.com/files/241/825/211/round-collaboration-social-github-code-circle-network-icon.svg" width="36" height = "36" alt="GitHub"/></a>
+		<a href = "https://www.linkedin.com/in/aman-l-922819251/">
+			<img src = "http://www.iconninja.com/files/863/607/751/network-linkedin-social-connection-circular-circle-media-icon.svg" width="36" height="36" alt="LinkedIn"/>
+		</a>
+	</p>
+</td>
+
+<td>
+	<p align="center">
+		<img src = "https://avatars.githubusercontent.com/u/74227363?v=4" width="200" height="200" alt="profilepic" style="border: 2px solid grey; width: 170px; height:170px">
+	</p>
+	<p style="font-size:17px; font-weight:600;">Jothish Kamal</p>
+	<p align="center">
+		<a href = "https://github.com/JothishKamal"><img src = "http://www.iconninja.com/files/241/825/211/round-collaboration-social-github-code-circle-network-icon.svg" width="36" height = "36" alt="GitHub"/></a>
+		<a href = "https://www.linkedin.com/in/jothishkamal/">
+			<img src = "http://www.iconninja.com/files/863/607/751/network-linkedin-social-connection-circular-circle-media-icon.svg" width="36" height="36" alt="LinkedIn"/>
+		</a>
+	</p>
+</td>
+
+<td>
+	<p align="center">
+		<img src = "https://avatars.githubusercontent.com/u/155614230?v=4" width="200" height="200" alt="profilepic" style="border: 2px solid grey; width: 170px; height:170px">
+	</p>
+	<p style="font-size:17px; font-weight:600;">Soham Mahapatra</p>
+	<p align="center">
+		<a href = "https://github.com/Soham-Maha"><img src = "http://www.iconninja.com/files/241/825/211/round-collaboration-social-github-code-circle-network-icon.svg" width="36" height = "36" alt="GitHub"/></a>
+		<a href = "https://www.linkedin.com/in/soham-mahapatra-433bb428a/">
+			<img src = "http://www.iconninja.com/files/863/607/751/network-linkedin-social-connection-circular-circle-media-icon.svg" width="36" height="36" alt="LinkedIn"/>
+		</a>
+	</p>
+</td>
+
+<td>
+	<p align="center">
+		<img src = "https://avatars.githubusercontent.com/u/140488187?v=4" width="200" height="200" alt="profilepic" style="border: 2px solid grey; width: 170px; height:170px">
+	</p>
+	<p style="font-size:17px; font-weight:600;">Abhinav Anand</p>
+	<p align="center">
+		<a href = "https://github.com/Abhinav-055"><img src = "http://www.iconninja.com/files/241/825/211/round-collaboration-social-github-code-circle-network-icon.svg" width="36" height = "36" alt="GitHub"/></a>
+		<a href = "https://www.linkedin.com/in/abhinav-anand--/">
+			<img src = "http://www.iconninja.com/files/863/607/751/network-linkedin-social-connection-circular-circle-media-icon.svg" width="36" height="36" alt="LinkedIn"/>
+		</a>
+	</p>
+</td>
+
+<td>
+	<p align="center">
+		<img src = "https://avatars.githubusercontent.com/u/80804989?v=4" width="200" height="200" alt="profilepic" style="border: 2px solid grey; width: 170px; height:170px">
+	</p>
+	<p style="font-size:17px; font-weight:600;">Aman Singh</p>
+	<p align="center">
+		<a href = "https://github.com/DevloperAmanSingh"><img src = "http://www.iconninja.com/files/241/825/211/round-collaboration-social-github-code-circle-network-icon.svg" width="36" height = "36" alt="GitHub"/></a>
+		<a href = "https://www.linkedin.com/in/amansingh2112/">
+			<img src = "http://www.iconninja.com/files/863/607/751/network-linkedin-social-connection-circular-circle-media-icon.svg" width="36" height="36" alt="LinkedIn"/>
+		</a>
+	</p>
+</td>
+
+</tr>
 </table>
 
 ## License
