@@ -87,18 +87,22 @@ $ cd cookoff-9.0-backend
 
 #### Directions to Run
 
+1. Spin up containers
 ```sh
 $ docker compose up --build -d
 ```
 
+2. Install sqlc
 ```sh
 $ go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest
 ```
 
+3. Generate sqlc schema and queries
 ```sh
 $ make generate
 ```
 
+4. Apply migrations
 ```sh
 $ make apply-schema
 ```
