@@ -118,7 +118,7 @@ $ make apply-schema
 ```
 ## 📝 Checkout:
 
-- Cookoff'24 Admin Portal: [https://github.com/CodeChefVIT/cookoff-9.0-backend](https://github.com/CodeChefVIT/cookoff-admin-9.0)
+- Cookoff'24 Admin Portal: [https://github.com/CodeChefVIT/cookoff-admin-9.0](https://github.com/CodeChefVIT/cookoff-admin-9.0)
 - Cookoff'24 Portal: [https://github.com/CodeChefVIT/cookoff-portal-9.0](https://github.com/CodeChefVIT/cookoff-portal-9.0)
 
 ## 🚀 Contributors
