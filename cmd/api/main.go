@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-
 	"github.com/CodeChefVIT/cookoff-backend/internal/helpers/auth"
 	database "github.com/CodeChefVIT/cookoff-backend/internal/helpers/database"
 	logger "github.com/CodeChefVIT/cookoff-backend/internal/helpers/logging"
