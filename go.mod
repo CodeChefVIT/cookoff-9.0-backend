@@ -3,7 +3,7 @@ module github.com/CodeChefVIT/cookoff-backend
 go 1.22
 
 require (
-	github.com/go-chi/chi/v5 v5.1.0
+	github.com/go-chi/chi/v5 v5.2.2
 	github.com/go-chi/httprate v0.14.1
 	github.com/go-chi/jwtauth/v5 v5.3.1
 	github.com/go-playground/validator v9.31.0+incompatible
