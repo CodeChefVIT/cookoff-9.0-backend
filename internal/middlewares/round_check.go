@@ -18,7 +18,7 @@ func CheckRound(next http.Handler) http.Handler {
 		roundVal, _ := strconv.Atoi(round)
 
 		if user.RoundQualified != int32(roundVal) {
-			httphelpers.WriteError(w, http.StatusForbidden, "not qualified")
+			httphelpers.WriteError(w, http.StatusForbidden, "round not enabled yet")
 			return
 		}
 		next.ServeHTTP(w, r)
