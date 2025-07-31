@@ -94,7 +94,7 @@ $ cd cookoff-9.0-backend
 
 ### Prerequisites
 
-1. Setup atlas
+1. Setup [atlas](https://atlasgo.io/getting-started)
 2. Configure env (refer .env.example)
 3. Configure Makefile
 
